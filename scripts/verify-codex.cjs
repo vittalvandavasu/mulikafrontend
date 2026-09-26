@@ -20,10 +20,28 @@ const server = http.createServer((req,res) => {
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   const go=async(hash)=>{await page.goto('http://127.0.0.1:4178/'+hash);await page.locator('h1').first().waitFor();};
+  const captureHome = async (name) => {
+    for (const element of await page.locator('.codex-masthead,.landscape-object,.index-editorial').all()) {
+      await element.scrollIntoViewIfNeeded();
+      await page.waitForFunction(el => getComputedStyle(el).opacity === '1', await element.elementHandle());
+    }
+    await page.evaluate(() => window.scrollTo(0,0));
+    await page.screenshot({path:path.resolve(__dirname,'../'+name),fullPage:true});
+  };
   try {
     await go('');
     assert.equal(await page.locator('.landscape-object').count(),7);
-    await page.screenshot({path:path.resolve(__dirname,'../codex-desktop.png'),fullPage:true});
+    await page.waitForFunction(() => [...document.querySelectorAll('.landscape-object')].filter(el => el.getBoundingClientRect().top < innerHeight).every(el => getComputedStyle(el).opacity === '1'));
+    await page.getByRole('button',{name:'I have a question',exact:true}).click();
+    await page.getByRole('heading',{name:'Search the collection.',exact:true}).waitFor();
+    await page.getByRole('button',{name:'Search the Codex',exact:true}).click();
+    await page.locator('#ask-input').waitFor();
+    await page.goBack();
+    await page.getByRole('button',{name:'I want to read',exact:true}).click();
+    await page.getByRole('button',{name:'Open the reader',exact:true}).click();
+    await page.locator('.archive-shell').waitFor();
+    await go('#home');
+    await captureHome('codex-desktop.png');
     await page.locator('.landscape-object').filter({hasText:'A–Z & names'}).click();
     await page.getByRole('navigation',{name:'Choose initial letter'}).waitFor();
     await page.getByRole('button',{name:'Scientific',exact:true}).click();
@@ -67,11 +85,16 @@ const server = http.createServer((req,res) => {
     }
     await page.setViewportSize({width:390,height:844});
     await go('#home');
-    await page.screenshot({path:path.resolve(__dirname,'../codex-mobile.png'),fullPage:true});
+    await captureHome('codex-mobile.png');
     await page.keyboard.press('Control+k');
     await page.locator('.theme-control select').selectOption('dark');
     await page.getByRole('button',{name:'Close panel',exact:true}).click();
-    await page.screenshot({path:path.resolve(__dirname,'../codex-dark.png'),fullPage:true});
+    await captureHome('codex-dark.png');
+    await page.emulateMedia({reducedMotion:'reduce'});
+    await go('#home');
+    await page.getByRole('button',{name:'I have a question',exact:true}).click();
+    assert.equal(await page.locator('.guide-answer h2').textContent(),'Search the collection.');
+    assert.equal(await page.locator('.landscape-object').first().evaluate(el=>getComputedStyle(el).opacity),'1');
     assert.deepEqual(errors,[]);
     console.log('PASS: visual index, A–Z language/letter filters, dossier anchors, Back, keyboard destination finder, family filtering, comparison, folio route, static search, 30 responsive checks, dark mode, no page errors.');
   } finally { await browser.close(); server.close(); }
