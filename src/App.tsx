@@ -13,6 +13,7 @@ import {
   SavedRemedyItem
 } from './types';
 import { DiscoveryPaths } from './components/DiscoveryPaths';
+import { CodexIndex } from './components/CodexIndex';
 import { searchLibrary, request } from './services/api';
 import { Navbar } from './components/Navbar';
 import { SearchHero } from './components/SearchHero';
@@ -36,7 +37,7 @@ import { INITIAL_USER_REMEDIES } from './data/userRemedies';
 export function App() {
   const [selectedHerbId, setSelectedHerbId] = useState<string | undefined>();
   const [selectedAilmentId, setSelectedAilmentId] = useState<string | undefined>();
-  const [activeTab, setActiveTab] = useState<string>('search');
+  const [activeTab, setActiveTab] = useState<string>('home');
   const [query, setQuery] = useState<string>('');
   const [bookFilter, setBookFilter] = useState<string>('ALL');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
@@ -96,7 +97,7 @@ export function App() {
   const parseUrlHash = () => {
     try {
       const hash = window.location.hash.replace('#', '');
-      if (!hash) return;
+      if (!hash) { setActiveTab('home'); return; }
 
       const [tab, queryString] = hash.split('?');
       if (tab === 'codex' || tab === 'compare') {
@@ -116,7 +117,7 @@ export function App() {
           initialCompareHerb: compareHerb
         });
         setActiveTab('codex');
-      } else if (['search', 'herbs', 'ailments', 'glossary', 'community', 'sources'].includes(tab)) {
+      } else if (['home', 'az', 'taxonomy', 'search', 'herbs', 'ailments', 'glossary', 'community', 'sources'].includes(tab)) {
         setActiveTab(tab);
       }
     } catch (e) {
@@ -127,7 +128,8 @@ export function App() {
   useEffect(() => {
     parseUrlHash();
     window.addEventListener('hashchange', parseUrlHash);
-    return () => window.removeEventListener('hashchange', parseUrlHash);
+    window.addEventListener('popstate', parseUrlHash);
+    return () => { window.removeEventListener('hashchange', parseUrlHash); window.removeEventListener('popstate', parseUrlHash); };
   }, []);
 
   // Sync hash whenever tab or codexTarget changes
@@ -136,13 +138,13 @@ export function App() {
       if (tab === 'codex' && target) {
         if (target.initialViewMode === 'compare') {
           const queryPart = target.initialCompareHerb ? `compare=${encodeURIComponent(target.initialCompareHerb)}` : 'view=compare';
-          window.history.replaceState(null, '', `#codex?${queryPart}&return=${encodeURIComponent(target.returnTab || 'search')}`);
+          window.history.pushState(null, '', `#codex?${queryPart}&return=${encodeURIComponent(target.returnTab || 'search')}`);
         } else {
           const queryPart = `book=${encodeURIComponent(target.bookId)}&page=${target.page}${target.entryId ? `&entry=${encodeURIComponent(target.entryId)}` : ''}`;
-          window.history.replaceState(null, '', `#codex?${queryPart}&return=${encodeURIComponent(target.returnTab || 'search')}`);
+          window.history.pushState(null, '', `#codex?${queryPart}&return=${encodeURIComponent(target.returnTab || 'search')}`);
         }
       } else {
-        window.history.replaceState(null, '', `#${tab}`);
+        window.history.pushState(null, '', `#${tab}`);
       }
     } catch {
       // safe fallback
@@ -279,8 +281,13 @@ export function App() {
   };
 
   const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId);
-    updateUrlHash(tabId);
+    if (tabId === 'compare') {
+      const target: CodexNavigationTarget = { bookId: 'mulika', page: 3, returnTab: activeTab, initialViewMode: 'compare' };
+      setCodexTarget(target); setActiveTab('codex'); updateUrlHash('codex', target);
+    } else {
+      if (tabId === 'codex') setCodexTarget(null);
+      setActiveTab(tabId); updateUrlHash(tabId);
+    }
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
@@ -352,7 +359,7 @@ export function App() {
   return (
     <div className="min-h-screen bg-[var(--canvas)] text-[var(--ink)] flex flex-col font-sans selection:bg-[#D4AF37] selection:text-[#0B130E]">
       <Navbar
-        activeTab={activeTab}
+        activeTab={activeTab === 'codex' && codexTarget?.initialViewMode === 'compare' ? 'compare' : activeTab}
         setActiveTab={handleTabChange}
         totalEntriesCount={entries.length}
         onOpenArchitectureModal={() => setIsArchitectureModalOpen(true)}
@@ -364,6 +371,7 @@ export function App() {
 
       <main id="main-content" tabIndex={-1} className="flex-1 pb-24 lg:pb-16">
         {actionError && <div role="alert" className="error-state">{actionError}<button onClick={() => setActionError(null)}>Dismiss</button></div>}
+        {activeTab === 'home' && <CodexIndex navigate={handleTabChange} entriesCount={entries.length} herbsCount={herbs.length}/>}
         {activeTab === 'search' && (
           <div className="space-y-6">
             <SearchHero
@@ -413,6 +421,7 @@ export function App() {
         {activeTab === 'codex' && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Suspense fallback={<p role="status" className="loading-state">Opening the manuscript reader…</p>}><ManuscriptReader
+              key={codexTarget?.initialViewMode === 'compare' ? 'comparison' : 'reader'}
               entries={entries}
               onSelectHerb={(herbName) => {
                 setQuery(herbName);
@@ -439,9 +448,12 @@ export function App() {
           </div>
         )}
 
-        {activeTab === 'herbs' && (
+        {['herbs','az','taxonomy'].includes(activeTab) && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <HerbEncyclopedia
+              key={activeTab}
+              catalogueMode={activeTab === 'az' || activeTab === 'taxonomy' ? activeTab : undefined}
+              onBrowseMode={handleTabChange}
               initialHerbId={selectedHerbId}
               onNavigateToSource={handleNavigateToSource}
               onNavigateToCompare={handleNavigateToCompare}

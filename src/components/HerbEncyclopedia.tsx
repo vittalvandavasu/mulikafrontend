@@ -1,3 +1,4 @@
+import { HerbCatalogue } from './HerbCatalogue';
 import { useDialog } from '../hooks/useDialog';
 import React, { useState, useMemo } from 'react';
 import { HerbMonograph, AyurvedicEntry, UserSubmittedRemedy } from '../types';
@@ -6,6 +7,8 @@ import { englishHerbName } from '../lib/herbNames';
 import { Search, Leaf, Sparkles, BookOpen, ShieldAlert, X, ChevronRight, CheckCircle2, AlertTriangle, ThumbsUp, Tag } from 'lucide-react';
 
 interface HerbEncyclopediaProps {
+  catalogueMode?: 'az' | 'taxonomy';
+  onBrowseMode?: (id: string) => void;
   initialHerbId?: string;
   onNavigateToSource?: (book: string, page: number, entry?: string) => void;
   onNavigateToCompare?: (herb: string) => void;
@@ -18,7 +21,7 @@ interface HerbEncyclopediaProps {
 }
 
 export const HerbEncyclopedia: React.FC<HerbEncyclopediaProps> = ({
-  initialHerbId, onNavigateToSource, onNavigateToCompare,
+  catalogueMode, onBrowseMode, initialHerbId, onNavigateToSource, onNavigateToCompare,
   herbs,
   entries,
   userRemedies = [],
@@ -32,6 +35,7 @@ export const HerbEncyclopedia: React.FC<HerbEncyclopediaProps> = ({
 
   const filteredHerbs = herbs.filter(h =>
     h.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    englishHerbName(h).toLowerCase().includes(searchTerm.toLowerCase()) ||
     h.telugu.includes(searchTerm) ||
     h.botanical.toLowerCase().includes(searchTerm.toLowerCase()) ||
     h.sanskrit.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -101,7 +105,7 @@ export const HerbEncyclopedia: React.FC<HerbEncyclopediaProps> = ({
   }, [herbs, entries]);
 
   return (
-    <div className="py-8 space-y-8 animate-fadeIn">
+    <div className="herb-dossier-index py-8 space-y-8 animate-fadeIn">
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[var(--line)] pb-6">
         <div>
@@ -110,7 +114,7 @@ export const HerbEncyclopedia: React.FC<HerbEncyclopediaProps> = ({
             <span>Ayurvedic Dravyaguna Botanical Index</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl text-[var(--ink)]">
-            Explore herbs & ingredients
+            {catalogueMode === 'az' ? 'A name opens a world.' : catalogueMode === 'taxonomy' ? 'A family resemblance.' : 'The botanical collection.'}
           </h1>
           <p className="text-sm text-[var(--muted)] mt-1 max-w-2xl">
             Transcribed profiles from digitized Telugu manuscripts detailing botanical classifications, classical energetics (Rasa, Virya, Vipaka), associated ailments, and recipe citations.
@@ -138,8 +142,10 @@ export const HerbEncyclopedia: React.FC<HerbEncyclopediaProps> = ({
         </div>
       </div>
 
+      <nav className="catalogue-modes" aria-label="Collection view">{[['herbs','Visual collection'],['az','A–Z & names'],['taxonomy','Families']].map(([id,label]) => <button key={id} aria-pressed={(catalogueMode || 'herbs') === id} onClick={() => onBrowseMode?.(id)}>{label}</button>)}</nav>
+      {catalogueMode && <HerbCatalogue herbs={filteredHerbs} mode={catalogueMode} select={setSelectedHerb}/>}
       {/* Herbs Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div hidden={!!catalogueMode} className="herb-card-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filteredHerbs.map((herb) => (
           <div
             key={herb.id}
@@ -210,8 +216,8 @@ export const HerbEncyclopedia: React.FC<HerbEncyclopediaProps> = ({
       {/* Monograph Detail Modal */}
       {selectedHerb && (
         <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Herb profile" className="fixed inset-0 z-50 bg-[var(--canvas)]/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[var(--canvas)] border border-[var(--line)] text-[var(--ink)] rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scaleUp">
-            <div className="p-6"><BotanicalConfidenceBadge confidence={selectedHerb.botanical_confidence}/><div className="button-row"><button onClick={() => { onNavigateToCompare?.(selectedHerb.name); setSelectedHerb(null); }}>Compare sources</button></div><details><summary>Manuscript references ({herbRemedies.length})</summary>{herbRemedies.map(e => <button className="source-link" key={e.id} onClick={() => { onNavigateToSource?.(e.source_id,e.page,e.id); setSelectedHerb(null); }}>{e.source_short} · Page {e.page} · {e.ailment}</button>)}</details></div>{/* Modal Header */}
+          <div className="scholarly-dossier bg-[var(--canvas)] border border-[var(--line)] text-[var(--ink)] rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scaleUp">
+            {/* Modal Header */}
             <div className="sticky top-0 bg-[var(--canvas)] p-6 border-b border-[var(--line)] flex items-start justify-between z-10">
               <div>
                 <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[var(--accent)]">
@@ -236,6 +242,10 @@ export const HerbEncyclopedia: React.FC<HerbEncyclopediaProps> = ({
               </button>
             </div>
 
+            <div className="p-6"><BotanicalConfidenceBadge confidence={selectedHerb.botanical_confidence}/><div className="button-row"><button onClick={() => { onNavigateToCompare?.(selectedHerb.name); setSelectedHerb(null); }}>Compare sources</button></div><details><summary>Manuscript references ({herbRemedies.length})</summary>{herbRemedies.map(e => <button className="source-link" key={e.id} onClick={() => { onNavigateToSource?.(e.source_id,e.page,e.id); setSelectedHerb(null); }}>{e.source_short} · Page {e.page} · {e.ailment}</button>)}</details></div>
+            {/* Dossier identity uses recorded fields only. */}
+            <section className="dossier-identity"><p className="eyebrow">IDENTITY / NAMES</p><dl>{[['English / common',englishHerbName(selectedHerb)],['Recorded name',selectedHerb.name],['Telugu',selectedHerb.telugu],['Sanskrit',selectedHerb.sanskrit],['Family',selectedHerb.family],['Other recorded names',selectedHerb.common_names?.join(' · ')]].filter(([,value]) => value).map(([label,value]) => <div key={label}><dt>{label}</dt><dd lang={label === 'Telugu' ? 'te' : undefined}>{value}</dd></div>)}</dl><p className="muted">Modern botanical identity is shown alongside the historical names. It does not establish which species every historical author intended.</p></section>
+            <nav className="dossier-toc" aria-label="In this herb profile"><a onClick={e => { e.preventDefault(); document.getElementById(e.currentTarget.hash.slice(1))?.scrollIntoView({block:"start"}); }} href="#dossier-profile">Profile</a><a onClick={e => { e.preventDefault(); document.getElementById(e.currentTarget.hash.slice(1))?.scrollIntoView({block:"start"}); }} href="#dossier-uses">Traditional uses</a><a onClick={e => { e.preventDefault(); document.getElementById(e.currentTarget.hash.slice(1))?.scrollIntoView({block:"start"}); }} href="#dossier-modern">Modern references</a><a onClick={e => { e.preventDefault(); document.getElementById(e.currentTarget.hash.slice(1))?.scrollIntoView({block:"start"}); }} href="#dossier-sources">Source records</a></nav>
             {/* Modal Body */}
             <div className="p-6 space-y-6">
               {/* Botanical Description */}
@@ -244,7 +254,7 @@ export const HerbEncyclopedia: React.FC<HerbEncyclopediaProps> = ({
               </p>
 
               {/* Classical Ayurvedic Energetics Matrix (Dravyaguna) */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-xl bg-[var(--surface)] border border-[var(--line)]">
+              <div id="dossier-profile" className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-xl bg-[var(--surface)] border border-[var(--line)]">
                 <div>
                   <span className="text-[10px] uppercase font-mono text-[var(--muted)] tracking-wider block">Rasa (Taste)</span>
                   <span className="text-xs sm:text-sm font-semibold text-[var(--ink)]">{selectedHerb.rasa}</span>
@@ -290,7 +300,7 @@ export const HerbEncyclopedia: React.FC<HerbEncyclopediaProps> = ({
                 </div>
               )}
 
-              {/* Parts Used & Traditional Uses */}
+              <span id="dossier-uses"/>{/* Parts Used & Traditional Uses */}
               <div className="space-y-3">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">
                   Traditional uses & formulations
@@ -305,7 +315,7 @@ export const HerbEncyclopedia: React.FC<HerbEncyclopediaProps> = ({
                 </div>
               </div>
 
-              {/* Modern Scientific Evidence */}
+              <span id="dossier-modern"/>{/* Modern Scientific Evidence */}
               <div className="p-4 rounded-xl bg-[var(--surface)] border border-[var(--line)] space-y-2">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
                   <Sparkles className="w-4 h-4" />
@@ -331,7 +341,7 @@ export const HerbEncyclopedia: React.FC<HerbEncyclopediaProps> = ({
                 </div>
               )}
 
-              {/* Linked Verified Manuscript Citations */}
+              <span id="dossier-sources"/>{/* Linked Verified Manuscript Citations */}
               {herbRemedies.length > 0 && (
                 <div className="space-y-3 border-t border-[var(--line)] pt-4">
                   <div className="flex items-center gap-2">

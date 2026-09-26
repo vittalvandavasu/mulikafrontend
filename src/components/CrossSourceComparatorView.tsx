@@ -79,7 +79,7 @@ export const CrossSourceComparatorView: React.FC<CrossSourceComparatorViewProps>
     : null;
 
   return (
-    <div className="space-y-8 animate-fadeIn">
+    <div className="comparison-editorial space-y-8 animate-fadeIn">
       {/* Header & Philological Scope Notice */}
       <div className="p-6 rounded-2xl bg-[var(--canvas)] border border-[var(--line)] space-y-4 shadow-lg">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

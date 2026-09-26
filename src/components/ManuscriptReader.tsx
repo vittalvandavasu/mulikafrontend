@@ -165,7 +165,7 @@ export const ManuscriptReader: React.FC<ManuscriptReaderProps> = ({
   };
 
   return (
-    <div className="py-8 space-y-8 animate-fadeIn">
+    <div className="archive-shell py-8 space-y-8 animate-fadeIn">
       {/* Header & Return Navigation Breadcrumb */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[var(--line)] pb-6">
         <div>
