@@ -12,7 +12,7 @@ import {
   CodexNavigationTarget,
   SavedRemedyItem
 } from './types';
-import { HomeDiscovery } from './components/HomeDiscovery';
+import { DiscoveryPaths } from './components/DiscoveryPaths';
 import { searchLibrary, request } from './services/api';
 import { Navbar } from './components/Navbar';
 import { SearchHero } from './components/SearchHero';
@@ -281,6 +281,7 @@ export function App() {
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
     updateUrlHash(tabId);
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   // Navigates directly into Codex Reader pointing to a specific book and folio page
@@ -383,7 +384,7 @@ export function App() {
             />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               {searchError && <div className="error-state" role="alert"><h2>We couldn’t reach the Mulika library.</h2><p>No answer has been generated. {searchError}</p><button className="primary-button" onClick={() => handleSearch(query)}>Retry search</button></div>}
-              {!searchResult && !loading && !searchError && <HomeDiscovery entries={entries} herbs={herbs} navigate={handleTabChange} search={handleSearch}/>}
+              {!searchResult && !loading && !searchError && <DiscoveryPaths navigate={handleTabChange} search={handleSearch} savedCount={savedRemedies.length} openSaved={() => setIsSavedDrawerOpen(true)}/>}
               <SearchResultsView
                 searchResult={searchResult}
                 loading={loading}
