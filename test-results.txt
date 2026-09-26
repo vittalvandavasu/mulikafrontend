@@ -1,0 +1,87 @@
+
+> react-example@0.0.0 test
+> tsx src/tests/safetyAndProvenance.test.ts && tsx src/tests/goldCorpus.test.ts && tsx src/tests/crossSourceComparison.test.ts && tsx src/tests/codexDeepLinking.test.ts && tsx src/tests/frontendRendering.test.tsx
+
+
+=== MULIKA PROVENANCE & SAFETY TEST SUITE ===
+✅ 1. Safe Abstention: Empty/Unrelated query yields UNKNOWN status -> PASSED
+✅ 2. Verified Folio Match yields SUPPORTED status and Level 1 Evidence -> PASSED
+✅ 3. Uncollated Folio remains SOURCE_REFERENCED and yields SOURCE_REFERENCED_UNCOLLATED -> PASSED
+✅ 4. Citation Completeness: All 100+ raw entries have valid source_id, title, page > 0, and non-empty remedy -> PASSED
+✅ 5. Botanical Uncertainty: Unlisted vernacular plants default to PROVISIONAL, not VERIFIED -> PASSED
+✅ 6. Processing Layer Distinction: AI Synthesis is explicitly segregated from Primary Source Evidence -> PASSED
+✅ 7. Fabricated Citation Rejection: Post-LLM gatekeeper rejects ungrounded pages and treatises -> PASSED
+✅ 8. New Ingestions Strict Referencing: All entries from Intinta and 1000 Chitkalu remain SOURCE_REFERENCED -> PASSED
+✅ 9. Multi-Source Provenance Preservation: Duplicate herbs (e.g., Nela Usiri, Tulasi) coexist across multiple distinct treatises -> PASSED
+✅ 10. Blurred Folio Discipline: Page 20 blur is explicitly noted and not fabricated/guessed -> PASSED
+
+Summary: 10 Passed, 0 Failed
+
+=== MULIKA PHASE 2A: GOLD CORPUS CURATION & ENRICHMENT AUDIT SUITE ===
+
+  [PASS] Test 1: Gold Corpus count is within target range 50-75 (Actual: 74)
+  [PASS] Test 2: All Gold Corpus IDs resolve to canonical MANUSCRIPT_ENTRIES records without duplication
+  [PASS] Test 3: All 6 digitized treatises are represented in Gold Corpus (Found 6/6 sources)
+  [PASS] Test 4: 100% of Gold Corpus records pass the 12-Point Quality Checklist
+  [PASS] Test 5: Strict Provenance Preservation — newly ingested treatises remain SOURCE_REFERENCED (no auto-promotion)
+  [PASS] Test 6: Missing fields are faithfully marked as "Not stated in source" rather than fabricated
+  [PASS] Test 7: Potentially toxic / irritating taxa (Calotropis, Aristolochia) carry explicit review flags
+  [PASS] Test 8: Audit statistics verified (Total: 74, Verified: 48, Referenced: 26)
+
+--- AUDIT SUMMARY REPORT ---
+Total Gold Objects: 74
+SOURCE_VERIFIED: 48
+SOURCE_REFERENCED (Collation Pending): 26
+Treatise Distribution:
+  - mulika: 37 records
+  - chitkalu: 5 records
+  - medplants: 5 records
+  - beauty: 1 records
+  - intinta: 18 records
+  - chitkalu1000: 8 records
+Review Flags:
+  - EXTERNAL_LEPAM_ONLY: 5 records
+  - EMERGENCY_REVIVAL_NASYA: 1 records
+  - EXTERNAL_APPLICATION: 6 records
+  - IRRITANT_CALCIUM_OXALATE: 1 records
+  - EXCLUDE_IN_DIARRHEA: 1 records
+  - GARGLE_DO_NOT_SWALLOW: 1 records
+  - ALOE_YELLOW_SAP_EXCLUDED: 1 records
+  - PURIFICATION_REQUIRED: 1 records
+  - EXTREME_BITTER_RASA: 2 records
+  - REQUIRES_SAFETY_REVIEW: 3 records
+
+Results: 8 Passed, 0 Failed
+=== MULIKA PHASE 2C: CROSS-SOURCE COMPARISON VERIFICATION SUITE ===
+
+  [PASS] Test 1: Deterministic mapping of vernacular, Sanskrit, and Latin botanical aliases to canonical herb entities
+  [PASS] Test 2: Collation of overlapping traditional respiratory indications identifies SIMILAR_TRADITIONAL_CLAIM and links multiple treatises
+  [PASS] Test 3: Collation of identical plant part (leaf), preparation (juice/swarasa), and vehicle (honey) yields MATCHING_FORMULATION
+  [PASS] Test 4: Collation of same indication with differing plant parts (leaf vs bark) and vehicles yields FORMULATION_VARIATION
+  [PASS] Test 5: Collation of non-overlapping traditional indications yields UNIQUE_SOURCE_CLAIM with attribution to respective treatise
+  [PASS] Test 6: Collation flags CONFLICTING_SOURCE_CLAIM when one source prescribes internal ingestion while another specifies strict external lepam only
+  [PASS] Test 7: Ambiguous or damaged textual passages fail safely into INSUFFICIENT_INFORMATION rather than manufacturing conclusions
+  [PASS] Test 8: Botanical homonym disambiguation flags dual taxa (Bacopa monnieri & Centella asiatica) without conflating species
+  [PASS] Test 9: Deep-link citation integrity confirmed across 100 comparison records: valid source treatises and folio page numbers
+  [PASS] Test 10: Deterministic comparison summaries strictly avoid modern medical consensus claims and maintain corpus-bounded language
+  [PASS] Test 11: Researcher-friendly UI display labels and badges exist for all 6 Phase 2C relationship categories
+
+Phase 2C Test Results: 11 Passed, 0 Failed
+=== MULIKA PHASE 2B: CODEX READER & DEEP LINKING VERIFICATION SUITE ===
+
+  [PASS] Test 1: Search citation resolves valid source_id to correct treatise metadata and shelf book
+  [PASS] Test 2: Search citation resolves valid page numbers within available treatise folios (e.g. Mulika Pg 8, Intinta Pg 27)
+  [PASS] Test 3: Invalid/unknown source ID fails safely and falls back to default "mulika" treatise
+  [PASS] Test 4: Invalid page falls back safely to first available page (Expected: 3, Got: 3)
+  [PASS] Test 5: Gold Corpus entries provide full structured fields for reader apparatus
+  [PASS] Test 6: SOURCE_VERIFIED displays "Direct Attestation — Physical Source Collated"
+  [PASS] Test 7: SOURCE_REFERENCED displays "Cataloged Source Reference — Folio Collation Pending"
+  [PASS] Test 8: Explicitly acknowledges when source scan is unavailable without rendering fake images
+  [PASS] Test 9: Grounding and botanical confidence labels translate cleanly without raw code enums
+  [PASS] Test 10: All canonical manuscript entries map to valid shelf treatises with non-empty metadata
+
+======================================================
+Phase 2B Test Suite Results: 10 PASSED, 0 FAILED
+======================================================
+
+PASS: SUPPORTED, INFERRED, contradictory UNKNOWN, explicit abstention, source action, community separation, missing safety rendering

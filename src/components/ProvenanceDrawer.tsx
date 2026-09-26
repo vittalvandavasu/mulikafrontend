@@ -1,0 +1,22 @@
+import React, { useState } from 'react';
+import { AyurvedicEntry, SourceVerificationStatus, BotanicalConfidence } from '../types';
+import { getBotanicalConfidenceLabel, getEvidenceLevelLabel } from '../lib/provenanceLabels';
+import { Sheet } from './Sheet';
+import { BookOpen, Copy, GitCompare, ShieldCheck, Info } from 'lucide-react';
+export function VerificationBadge({ status }: { status?: SourceVerificationStatus }) {
+ const label = status === SourceVerificationStatus.SOURCE_VERIFIED ? 'Source verified' : status === SourceVerificationStatus.SOURCE_REFERENCED ? 'Source referenced · collation pending' : status === SourceVerificationStatus.PROVISIONAL ? 'Provisional transcription' : 'Verification unavailable';
+ return <span className="verification-badge">{status === SourceVerificationStatus.SOURCE_VERIFIED ? <ShieldCheck size={14}/> : <Info size={14}/>} {label}</span>;
+}
+export function BotanicalConfidenceBadge({ confidence }: { confidence?: BotanicalConfidence }) { return <span className="verification-badge"><Info size={14}/>{confidence ? getBotanicalConfidenceLabel(confidence).label : 'Botanical confidence unavailable'}</span>; }
+export function ProvenanceDrawer({ entry: e, onClose, onSource, onCompare }: { entry: AyurvedicEntry; onClose: () => void; onSource: () => void; onCompare: () => void }) {
+ const [copy, setCopy] = useState('Copy citation');
+ const p = e.provenance;
+ const original = e.remedy_telugu || (p?.original_telugu_text && /[\u0C00-\u0C7F]/.test(p.original_telugu_text) ? p.original_telugu_text : undefined);
+ return <Sheet title="The source behind the claim" onClose={onClose}><div className="provenance-body"><p className="eyebrow">TRADITIONAL SOURCE EVIDENCE</p><h3>{p?.source_title || e.source_title}</h3><p>{p?.source_author || e.source_author} · Page / folio {p?.page_or_folio || e.page}</p><VerificationBadge status={p?.verification_status || e.verification_status}/>{(p?.evidence_level || e.evidence_level) && <p>{getEvidenceLevelLabel(p?.evidence_level || e.evidence_level).label}</p>}
+ {original && <section><h4>Original Telugu</h4><p lang="te" className="original-text">{original}</p></section>}
+ {(p?.transliteration_iso15919 || e.transliteration_iso15919) && <section><h4>Transliteration</h4><p>{p?.transliteration_iso15919 || e.transliteration_iso15919}</p></section>}
+ <section><h4>English translation / recorded formulation</h4><p>{p?.verbatim_translation_en || e.remedy}</p></section>
+ {(p?.botanical_identity || e.botanical) && <section><h4>Botanical identification</h4><p><i>{p?.botanical_identity?.latin_binomial || e.botanical}</i></p><BotanicalConfidenceBadge confidence={p?.botanical_identity?.confidence || e.botanical_confidence}/>{p?.botanical_identity?.notes && <p>{p.botanical_identity.notes}</p>}</section>}
+ <details><summary>Structured formulation & editorial review</summary><dl>{[['Plant part',e.plant_part_used],['Vehicle / Anupana',e.anupana_vehicle],['Verbatim dosage statement',e.dosage_verbatim],['Scholarly notes',e.scholarly_notes]].filter(([,v])=>v).map(([k,v])=><React.Fragment key={k}><dt>{k}</dt><dd>{v}</dd></React.Fragment>)}</dl>{e.ingredients_structured?.length ? <><h4>Recorded ingredients</h4><ul>{e.ingredients_structured.map(x=><li key={x}>{x}</li>)}</ul></> : null}{e.review_flags?.map(x=><p className="review-flag" key={x}>{x.replaceAll('_',' ')}</p>)}{p?.review_trail?.map((r,i)=><p key={i}>{r.stage.replaceAll('_',' ')} · {r.status} {r.reviewer_role && `· ${r.reviewer_role}`} {r.timestamp && `· ${r.timestamp}`} {r.notes}</p>)}</details>
+ {e.verification_note && <p className="muted">Record note: {e.verification_note}</p>}<div className="button-row"><button className="primary-button" onClick={onSource}><BookOpen size={17}/> Open manuscript</button><button onClick={onCompare}><GitCompare size={17}/> Compare source</button><button onClick={async()=>{try { await navigator.clipboard.writeText(`${e.source_title}. ${e.source_author}. Page ${e.page}. ${e.herb}. ${location.origin}${location.pathname}#codex?book=${encodeURIComponent(e.source_id)}&page=${e.page}&entry=${encodeURIComponent(e.id)}`); setCopy('Citation copied'); } catch { setCopy('Could not copy citation'); } }}><Copy size={17}/>{copy}</button></div><p role="status" className="sr-only">{copy}</p></div></Sheet>;
+}
