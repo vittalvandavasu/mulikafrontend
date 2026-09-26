@@ -1,0 +1,12 @@
+import { AyurvedicEntry, HerbMonograph } from '../types';
+
+const ENGLISH_BY_BOTANICAL: Array<[RegExp, string]> = [
+  [/Sesbania grandiflora/i, 'Hummingbird tree (Agathi)'], [/Justicia adhatoda|Adhatoda vasica/i, 'Malabar nut'], [/Glycyrrhiza glabra/i, 'Licorice'], [/Mimosa pudica/i, 'Sensitive plant'], [/Zingiber officinale/i, 'Ginger'], [/Saraca asoca/i, 'Ashoka tree'], [/Nardostachys jatamansi/i, 'Indian spikenard'], [/Vitex negundo/i, 'Five-leaved chaste tree'], [/Moringa oleifera/i, 'Drumstick tree'], [/Cissus quadrangularis/i, 'Veld grape'], [/Eclipta (alba|prostrata)/i, 'False daisy'], [/Ocimum (sanctum|tenuiflorum)/i, 'Holy basil'], [/Azadirachta indica/i, 'Neem'], [/Terminalia chebula/i, 'Chebulic myrobalan'], [/Tinospora cordifolia/i, 'Heart-leaved moonseed'], [/Aloe vera/i, 'Aloe vera'], [/Amorphophallus/i, 'Elephant foot yam'], [/Achyranthes aspera/i, 'Prickly chaff flower'], [/Phyllanthus emblica/i, 'Indian gooseberry'], [/Phyllanthus (amarus|niruri)/i, 'Stonebreaker'], [/Andrographis paniculata/i, 'Green chiretta'], [/Solanum (virginianum|xanthocarpum)/i, 'Yellow-berried nightshade'], [/Calotropis gigantea/i, 'Crown flower'], [/Aristolochia bracteolata/i, 'Worm-killer'], [/Curcuma longa/i, 'Turmeric'], [/Murraya koenigii/i, 'Curry leaf tree'], [/Trachyspermum ammi/i, 'Ajwain'], [/Tribulus terrestris/i, 'Puncture vine'], [/Terminalia arjuna/i, 'Arjuna tree'], [/Withania somnifera/i, 'Winter cherry'], [/Gymnema sylvestre/i, 'Gymnema'], [/Aerva lanata/i, 'Mountain knotgrass'], [/Rauvolfia serpentina/i, 'Indian snakeroot'], [/Linum usitatissimum/i, 'Flaxseed'], [/Piper longum/i, 'Long pepper'], [/Ficus benghalensis/i, 'Banyan'], [/Tamarindus indica/i, 'Tamarind'], [/Trianthema portulacastrum/i, 'Desert horsepurslane'], [/Syzygium cumini/i, 'Java plum'], [/Ricinus communis/i, 'Castor bean'], [/Curculigo orchioides/i, 'Black musli'], [/Myristica fragrans/i, 'Nutmeg'], [/Ferula foetida/i, 'Asafoetida'], [/Piper betle/i, 'Betel leaf'], [/Acacia nilotica/i, 'Gum arabic tree'], [/Mentha arvensis/i, 'Field mint']
+];
+
+export function englishHerbName(item: Pick<AyurvedicEntry, 'herb' | 'botanical'> | HerbMonograph): string {
+  const mapped = ENGLISH_BY_BOTANICAL.find(([pattern]) => pattern.test(item.botanical || ''));
+  if (mapped) return mapped[1];
+  if ('common_names' in item && item.common_names?.[0]) return item.common_names[0];
+  return 'name' in item ? item.name : item.herb;
+}

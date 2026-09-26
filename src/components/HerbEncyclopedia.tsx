@@ -2,6 +2,7 @@ import { useDialog } from '../hooks/useDialog';
 import React, { useState, useMemo } from 'react';
 import { HerbMonograph, AyurvedicEntry, UserSubmittedRemedy } from '../types';
 import { BotanicalConfidenceBadge } from './ProvenanceDrawer';
+import { englishHerbName } from '../lib/herbNames';
 import { Search, Leaf, Sparkles, BookOpen, ShieldAlert, X, ChevronRight, CheckCircle2, AlertTriangle, ThumbsUp, Tag } from 'lucide-react';
 
 interface HerbEncyclopediaProps {
@@ -149,7 +150,7 @@ export const HerbEncyclopedia: React.FC<HerbEncyclopediaProps> = ({
             <div className="space-y-2.5">
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-serif text-xl font-bold text-[var(--ink)] group-hover:text-[var(--accent)] transition-colors leading-snug">
-                  {herb.name}
+                  {englishHerbName(herb)}
                 </h3>
                 <span className="text-xs font-mono px-2 py-0.5 rounded bg-[var(--canvas)] border border-[var(--line)] text-[var(--accent)] shrink-0">
                   {herbRecipeCounts[herb.id] ?? 0} remedies
@@ -219,10 +220,10 @@ export const HerbEncyclopedia: React.FC<HerbEncyclopediaProps> = ({
                   <span>{selectedHerb.sanskrit}</span>
                 </div>
                 <h2 className="font-serif text-3xl font-bold text-[var(--ink)] mt-1">
-                  {selectedHerb.name}
+                  {englishHerbName(selectedHerb)}
                 </h2>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-lg font-bold text-[var(--accent)] font-serif">{selectedHerb.telugu}</span>
+                  <span className="text-lg font-bold text-[var(--accent)] font-serif">తెలుగు: {selectedHerb.telugu}</span>
                   <span className="text-sm italic text-[var(--muted)] font-serif">{selectedHerb.botanical}</span>
                 </div>
               </div>
