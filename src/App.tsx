@@ -13,6 +13,7 @@ import {
   SavedRemedyItem
 } from './types';
 import { DiscoveryPaths } from './components/DiscoveryPaths';
+import { BotanicalHome } from './components/BotanicalHome';
 import { CodexIndex } from './components/CodexIndex';
 import { searchLibrary, request } from './services/api';
 import { Navbar } from './components/Navbar';
@@ -39,6 +40,9 @@ export function App() {
   const [selectedHerbId, setSelectedHerbId] = useState<string | undefined>();
   const [selectedAilmentId, setSelectedAilmentId] = useState<string | undefined>();
   const [activeTab, setActiveTab] = useState<string>('home');
+  useEffect(() => {
+    if (activeTab !== 'herbs') setSelectedHerbId(undefined);
+  }, [activeTab]);
   const [query, setQuery] = useState<string>('');
   const [bookFilter, setBookFilter] = useState<string>('ALL');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
@@ -120,7 +124,7 @@ export function App() {
           initialCompareHerb: compareHerb
         });
         setActiveTab('codex');
-      } else if (['home', 'az', 'taxonomy', 'search', 'herbs', 'ailments', 'glossary', 'community', 'sources'].includes(tab)) {
+      } else if (['home', 'index', 'az', 'taxonomy', 'search', 'herbs', 'ailments', 'glossary', 'community', 'sources'].includes(tab)) {
         setActiveTab(tab);
       }
     } catch (e) {
@@ -375,7 +379,8 @@ export function App() {
 
       <main id="main-content" tabIndex={-1} className="flex-1 pb-24 lg:pb-16">
         {actionError && <div role="alert" className="error-state">{actionError}<button onClick={() => setActionError(null)}>Dismiss</button></div>}
-        {activeTab === 'home' && <CodexIndex navigate={handleTabChange} entriesCount={entries.length} herbsCount={herbs.length}/>}
+        {activeTab === 'home' && <BotanicalHome navigate={handleTabChange} onSearch={handleSearch} herbs={herbs} onHerb={id => { setSelectedHerbId(id); handleTabChange('herbs'); }} onCustomize={() => { setSearchContext(context => ({...context, enabled:true})); handleTabChange('search'); }}/>}
+        {activeTab === 'index' && <CodexIndex navigate={handleTabChange} entriesCount={entries.length} herbsCount={herbs.length}/>}
         {activeTab === 'search' && (
           <div className="space-y-6">
             <SearchHero

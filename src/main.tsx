@@ -4,6 +4,7 @@ import { AppErrorBoundary } from './components/AppErrorBoundary';
 import App from './App.tsx';
 import './index.css';
 import './codex.css';
+import './homepage.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

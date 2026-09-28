@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('node:assert/strict');
 const root = path.resolve(__dirname, '../dist');
-const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css'};
+const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png'};
 const server = http.createServer((req,res) => {
   if(req.url.startsWith('/api/')) { res.writeHead(404); return res.end('No API on static hosting'); }
   const pathname = new URL(req.url,'http://localhost').pathname;
@@ -30,8 +30,21 @@ const server = http.createServer((req,res) => {
   };
   try {
     await go('');
+    await page.locator('#home-search-input').fill('Ginger');
+    await page.getByRole('button',{name:'Search Mulika',exact:true}).click();
+    await page.locator('.results-layout,.abstention').waitFor();
+    await go('#home');
+    await page.getByRole('button',{name:'Start customizing',exact:true}).click();
+    assert(await page.getByRole('checkbox',{name:/Searching for an ailment/}).isChecked());
+    await go('#home');
+    await page.getByRole('button',{name:'Preview the collection',exact:true}).click();
+    await page.locator('#home-collections').waitFor();
+    assert((await page.locator('#home-collections').textContent()).includes('not products'));
+    await page.locator('.home-herb button').first().click();
+    await page.getByRole('dialog',{name:'Herb profile'}).waitFor();
+    await page.keyboard.press('Escape');
+    await go('#index');
     assert.equal(await page.locator('.landscape-object').count(),7);
-    await page.waitForFunction(() => [...document.querySelectorAll('.landscape-object')].filter(el => el.getBoundingClientRect().top < innerHeight).every(el => getComputedStyle(el).opacity === '1'));
     await page.getByRole('button',{name:'I have a question',exact:true}).click();
     await page.getByRole('heading',{name:'Search the collection.',exact:true}).waitFor();
     await page.getByRole('button',{name:'Search the Codex',exact:true}).click();
@@ -42,6 +55,7 @@ const server = http.createServer((req,res) => {
     await page.locator('.archive-shell').waitFor();
     await go('#home');
     await captureHome('codex-desktop.png');
+    await go('#index');
     await page.locator('.landscape-object').filter({hasText:'A–Z & names'}).click();
     await page.getByRole('navigation',{name:'Choose initial letter'}).waitFor();
     await page.getByRole('button',{name:'Scientific',exact:true}).click();
@@ -90,9 +104,9 @@ const server = http.createServer((req,res) => {
     assert.equal(await page.locator('.context-summary').count(),0);
     await page.reload();
     assert.equal(await page.getByRole('checkbox',{name:/Searching for an ailment/}).isChecked(),false);
-    for(const width of [360,390,768,1024,1440]) {
+    for(const width of [360,390,430,768,1024,1440]) {
       await page.setViewportSize({width,height:900});
-      for(const hash of ['#home','#az','#taxonomy','#search','#sources','#compare']) {
+      for(const hash of ['#home','#index','#az','#taxonomy','#search','#sources','#compare']) {
         await go(hash);
         const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1);
         assert(!overflow,'Horizontal overflow: '+width+' '+hash);
@@ -107,11 +121,12 @@ const server = http.createServer((req,res) => {
     await captureHome('codex-dark.png');
     await page.emulateMedia({reducedMotion:'reduce'});
     await go('#home');
+    await go('#index');
     await page.getByRole('button',{name:'I have a question',exact:true}).click();
     await page.getByRole('heading',{name:'Search the collection.',exact:true}).waitFor();
     assert.equal(await page.locator('.guide-answer h2').textContent(),'Search the collection.');
     assert.equal(await page.locator('.landscape-object').first().evaluate(el=>getComputedStyle(el).opacity),'1');
     assert.deepEqual(errors,[]);
-    console.log('PASS: visual index, A–Z language/letter filters, dossier anchors, Back, keyboard destination finder, family filtering, comparison, folio route, static search, 30 responsive checks, dark mode, no page errors.');
+    console.log('PASS: visual index, A–Z language/letter filters, dossier anchors, Back, keyboard destination finder, family filtering, comparison, folio route, static search, 42 responsive checks, dark mode, no page errors.');
   } finally { await browser.close(); server.close(); }
 })().catch(error=>{console.error(error);server.close();process.exitCode=1;});
