@@ -16,6 +16,7 @@ import { DiscoveryPaths } from './components/DiscoveryPaths';
 import { CodexIndex } from './components/CodexIndex';
 import { searchLibrary, request } from './services/api';
 import { Navbar } from './components/Navbar';
+import { AilmentContext, EMPTY_CONTEXT, SearchContextSummary } from './components/SearchContext';
 import { SearchHero } from './components/SearchHero';
 import { SearchResultsView } from './components/SearchResultsView';
 const ManuscriptReader = lazy(() => import('./components/ManuscriptReader').then(m => ({ default: m.ManuscriptReader }))); 
@@ -46,6 +47,8 @@ export function App() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const searchController = useRef<AbortController | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [searchContext, setSearchContext] = useState<AilmentContext>(EMPTY_CONTEXT);
+  const [submittedContext, setSubmittedContext] = useState<AilmentContext>(EMPTY_CONTEXT);
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
 
   const [entries, setEntries] = useState<AyurvedicEntry[]>(MANUSCRIPT_ENTRIES);
@@ -218,6 +221,7 @@ export function App() {
     searchController.current = controller;
     setSearchError(null);
     setSearchResult(null);
+    setSubmittedContext({ ...searchContext });
     setQuery(searchQuery);
     try {
       const result = await searchLibrary(searchQuery, bookFilter, categoryFilter, controller.signal);
@@ -375,6 +379,8 @@ export function App() {
         {activeTab === 'search' && (
           <div className="space-y-6">
             <SearchHero
+              context={searchContext}
+              setContext={setSearchContext}
               compact={!!searchResult || loading || !!searchError}
               query={query}
               setQuery={setQuery}
@@ -393,6 +399,7 @@ export function App() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               {searchError && <div className="error-state" role="alert"><h2>We couldn’t reach the Mulika library.</h2><p>No answer has been generated. {searchError}</p><button className="primary-button" onClick={() => handleSearch(query)}>Retry search</button></div>}
               {!searchResult && !loading && !searchError && <DiscoveryPaths navigate={handleTabChange} search={handleSearch} savedCount={savedRemedies.length} openSaved={() => setIsSavedDrawerOpen(true)}/>}
+              {searchResult && <SearchContextSummary value={submittedContext}/>}
               <SearchResultsView
                 searchResult={searchResult}
                 loading={loading}

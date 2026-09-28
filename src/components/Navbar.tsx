@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Bookmark, Menu, ArrowUpRight, Compass, BookOpen, X } from 'lucide-react';
+import { MulikaMark } from './MulikaMark';
 import { Sheet } from './Sheet';
 import { useTheme } from '../hooks/useTheme';
 import { CODEX_DESTINATIONS } from './CodexIndex';
@@ -24,7 +25,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, savedCo
   }, []);
   const current = destinations.find(item => item.id === activeTab)?.label || 'Ask the Codex';
   return <><a className="skip-link" href="#main-content">Skip to content</a><header className="topbar codex-topbar"><div className="nav-inner">
-    <button className="brand" onClick={() => go('home')} aria-label="Mulika visual index"><span>mulika<span className="brand-sub">THE BOTANICAL CODEX</span></span></button>
+    <button className="brand" onClick={() => go('home')} aria-label="Mulika visual index"><MulikaMark/><span>mulika<span className="brand-sub">THE BOTANICAL CODEX</span></span></button>
     <nav className="desktop-nav" aria-label="Primary">{[['home','Visual index'],['az','A–Z'],['sources','Texts'],['compare','Compare']].map(([id,label]) => <button key={id} onClick={() => go(id)} aria-current={activeTab === id ? 'page' : undefined}>{label}</button>)}</nav>
     <div className="nav-actions"><button className="icon-button" onClick={() => go('search')} aria-label="Ask the Codex"><Search size={19}/></button><button className="icon-button desktop-only" onClick={onOpenSavedRemedies} aria-label={`Saved records (${savedCount})`}><Bookmark size={19}/></button><button className="codex-menu-trigger" aria-expanded={menu} onClick={() => setMenu(true)}><Menu size={20}/><span>Index</span><kbd className="desktop-only">⌘ / Ctrl K</kbd></button></div>
   </div></header>

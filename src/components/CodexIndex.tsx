@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { ArrowUpRight, Leaf, BookOpen, GitCompare, Network, Library, Compass } from 'lucide-react';
+import { CollectionGraphic, ReadingProgress } from './CodexMotion';
 import { BOOKS } from '../data/books';
 
 export const CODEX_DESTINATIONS = [
@@ -23,15 +24,15 @@ export function CodexIndex({ navigate, entriesCount, herbsCount }: { navigate: (
   ];
   const path = paths[intent];
   const entrance = { initial: { opacity: reduceMotion ? 1 : 0, y: reduceMotion ? 0 : 14 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, amount: 0.1 } };
-  return <div className="codex-index">
+  return <div className="codex-index"><ReadingProgress/>
     <motion.header className="codex-masthead" {...entrance} transition={{ duration: reduceMotion ? 0 : 0.45 }}><p className="eyebrow">MULIKA / A DIGITAL BOTANICAL CODEX</p><h1>Discover a herb.<br/><em>Follow its story.</em></h1><div className="masthead-aside"><p>Explore herbs and their traditional uses.<br/>See the books behind each record.</p><button onClick={() => navigate('search')}>Search the collection <ArrowUpRight size={19}/></button></div></motion.header>
     <section className="start-guide" aria-label="Choose a starting point">
       <div className="guide-intro"><p className="eyebrow">WHERE WOULD YOU LIKE TO START?</p><div className="guide-choices" role="group" aria-label="What brings you here?">{paths.map((item, index) => <button key={item.label} aria-pressed={intent === index} onClick={() => setIntent(index)}>{item.label}</button>)}</div></div>
-      <div className="guide-answer" aria-live="polite"><motion.div key={intent} initial={{ opacity: reduceMotion ? 1 : 0, y: reduceMotion ? 0 : 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduceMotion ? 0 : 0.2 }}><h2>{path.title}</h2><p>{path.text}</p></motion.div><button className="guide-action" onClick={() => navigate(path.destination)}>{path.action}<ArrowUpRight size={18}/></button></div>
+      <div className="guide-answer" aria-live="polite"><AnimatePresence mode="wait" initial={false}><motion.div key={intent} exit={{ opacity: reduceMotion ? 1 : 0, y: reduceMotion ? 0 : -5 }} initial={{ opacity: reduceMotion ? 1 : 0, y: reduceMotion ? 0 : 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduceMotion ? 0 : 0.2 }}><h2>{path.title}</h2><p>{path.text}</p></motion.div></AnimatePresence><button className="guide-action" onClick={() => navigate(path.destination)}>{path.action}<ArrowUpRight size={18}/></button></div>
     </section>
     <div className="index-caption"><span>EXPLORE THE COLLECTION</span><span>Choose a section below to open it.</span></div>
     <nav className="knowledge-landscape" aria-label="Visual codex index">{CODEX_DESTINATIONS.map((item, index) => <motion.button {...entrance} transition={{ duration: reduceMotion ? 0 : 0.35, delay: reduceMotion ? 0 : index * 0.035 }} whileTap={reduceMotion ? undefined : { scale: 0.985 }} key={item.id} className={`landscape-object tone-${item.tone}`} onClick={() => navigate(item.id)}>
-      <span className="object-number">0{index + 1}</span><span className="object-glyph" aria-hidden="true">{item.glyph ? <item.glyph strokeWidth={1}/> : <span>Aa</span>}</span>
+      <svg className="collection-orbit" viewBox="0 0 160 160" fill="none" aria-hidden="true"><circle cx="80" cy="80" r="62"/><ellipse cx="80" cy="80" rx="30" ry="62" transform="rotate(35 80 80)"/><path d="M18 80h124M80 18v124"/><circle className="orbit-seed" cx="80" cy="18" r="5"/></svg><span className="object-number">0{index + 1}</span><span className="object-glyph" aria-hidden="true"><CollectionGraphic>{item.glyph ? <item.glyph strokeWidth={1}/> : <span>Aa</span>}</CollectionGraphic></span>
       <span className="object-title">{item.label}<ArrowUpRight size={22}/></span><span className="object-description">{item.description}</span><span className="object-verb">{item.verb} →</span>
     </motion.button>)}</nav>
     <section className="archive-ledger" aria-label="Collection overview"><div><strong>{herbsCount}</strong><span>Herbs & ingredients</span></div><div><strong>{BOOKS.length}</strong><span>Source texts</span></div><div><strong>{entriesCount}</strong><span>Indexed records</span></div><p>Each record has a history.<br/><button onClick={() => navigate('sources')}>See how we trace it <ArrowUpRight size={15}/></button></p></section>

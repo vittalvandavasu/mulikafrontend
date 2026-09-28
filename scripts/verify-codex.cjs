@@ -75,6 +75,21 @@ const server = http.createServer((req,res) => {
     await page.getByRole('button',{name:'Find sources',exact:true}).click();
     await page.locator('.results-layout,.abstention').waitFor();
     assert(await page.locator('.formulation-card').count()>0);
+    assert.equal(await page.locator('.context-summary').count(),0);
+    await page.getByRole('checkbox',{name:/Searching for an ailment/}).check();
+    await page.getByLabel('Age group',{exact:true}).selectOption('18–64');
+    await page.getByLabel('Gender',{exact:true}).selectOption('Non-binary');
+    await page.getByRole('button',{name:'Find sources',exact:true}).click();
+    await page.locator('.results-layout').waitFor();
+    assert((await page.locator('.context-summary').textContent()).includes('Non-binary'));
+    await page.getByLabel('Gender',{exact:true}).selectOption('Woman');
+    assert(!(await page.locator('.context-summary').textContent()).includes('Woman'));
+    await page.getByRole('button',{name:'Clear context',exact:true}).click();
+    await page.getByRole('button',{name:'Find sources',exact:true}).click();
+    await page.locator('.results-layout').waitFor();
+    assert.equal(await page.locator('.context-summary').count(),0);
+    await page.reload();
+    assert.equal(await page.getByRole('checkbox',{name:/Searching for an ailment/}).isChecked(),false);
     for(const width of [360,390,768,1024,1440]) {
       await page.setViewportSize({width,height:900});
       for(const hash of ['#home','#az','#taxonomy','#search','#sources','#compare']) {
@@ -93,6 +108,7 @@ const server = http.createServer((req,res) => {
     await page.emulateMedia({reducedMotion:'reduce'});
     await go('#home');
     await page.getByRole('button',{name:'I have a question',exact:true}).click();
+    await page.getByRole('heading',{name:'Search the collection.',exact:true}).waitFor();
     assert.equal(await page.locator('.guide-answer h2').textContent(),'Search the collection.');
     assert.equal(await page.locator('.landscape-object').first().evaluate(el=>getComputedStyle(el).opacity),'1');
     assert.deepEqual(errors,[]);
