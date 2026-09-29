@@ -5,6 +5,7 @@ import App from './App.tsx';
 import './index.css';
 import './codex.css';
 import './homepage.css';
+import './botanical-pages.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

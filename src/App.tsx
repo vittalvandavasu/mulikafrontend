@@ -14,6 +14,7 @@ import {
 } from './types';
 import { DiscoveryPaths } from './components/DiscoveryPaths';
 import { BotanicalHome } from './components/BotanicalHome';
+import { BotanicalBanner } from './components/BotanicalBanner';
 import { CodexIndex } from './components/CodexIndex';
 import { searchLibrary, request } from './services/api';
 import { Navbar } from './components/Navbar';
@@ -378,6 +379,7 @@ export function App() {
       />
 
       <main id="main-content" tabIndex={-1} className="flex-1 pb-24 lg:pb-16">
+        {activeTab !== 'home' && <BotanicalBanner page={activeTab === 'codex' && codexTarget?.initialViewMode === 'compare' ? 'compare' : activeTab} compact={activeTab === 'search' || activeTab === 'codex'}/>}
         {actionError && <div role="alert" className="error-state">{actionError}<button onClick={() => setActionError(null)}>Dismiss</button></div>}
         {activeTab === 'home' && <BotanicalHome navigate={handleTabChange} onSearch={handleSearch} herbs={herbs} onHerb={id => { setSelectedHerbId(id); handleTabChange('herbs'); }} onCustomize={() => { setSearchContext(context => ({...context, enabled:true})); handleTabChange('search'); }}/>}
         {activeTab === 'index' && <CodexIndex navigate={handleTabChange} entriesCount={entries.length} herbsCount={herbs.length}/>}

@@ -1,0 +1,17 @@
+.botanical-banner{position:relative;isolation:isolate;overflow:hidden;min-height:210px;display:flex;align-items:center;background:#263c2d;color:#fffaf0;margin:0 0 26px}
+.botanical-banner picture{position:absolute;inset:0;z-index:-2}
+.botanical-banner img{width:100%;height:100%;object-fit:cover;object-position:center 48%;display:block}
+.botanical-banner::after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(13,29,18,.87),rgba(13,29,18,.62) 50%,rgba(13,29,18,.12))}
+.botanical-banner-copy{width:100%;max-width:1280px;padding:36px 32px;margin:auto}
+.botanical-banner-copy>span{display:block;font-size:10px;letter-spacing:.2em;font-weight:600;margin-bottom:13px}
+.botanical-banner-copy>p{font-family:Georgia,'Times New Roman',serif;font-size:clamp(27px,3.2vw,46px);line-height:1.17;letter-spacing:-.035em;max-width:660px;margin:0;text-wrap:balance}
+.botanical-banner-credit{position:absolute;right:20px;bottom:10px;font-size:9px;letter-spacing:.06em;color:#fff;background:#183321a6;padding:3px 7px}
+.botanical-banner-compact{min-height:126px;margin-bottom:12px}
+.botanical-banner-compact .botanical-banner-copy{padding-block:22px}
+.botanical-banner-compact .botanical-banner-copy>p{font-size:clamp(23px,2.5vw,32px)}
+.botanical-banner-compact .botanical-banner-copy>span{margin-bottom:7px;font-size:9px}
+.provenance-body>.botanical-banner{margin:0 0 22px;min-height:170px}
+.provenance-body>.botanical-banner .botanical-banner-copy{padding:24px}
+.botanical-banner[data-scene="search"]+.space-y-6>.search-hero{padding-top:24px}
+@media(max-width:700px){.botanical-banner{min-height:170px;margin-bottom:12px}.botanical-banner-copy{padding:28px 22px 35px}.botanical-banner-copy>p{max-width:320px;font-size:29px}.botanical-banner-copy>span{font-size:8px;letter-spacing:.16em}.botanical-banner-compact{min-height:110px}.botanical-banner-compact .botanical-banner-copy{padding:18px 22px 28px}.botanical-banner-compact .botanical-banner-copy>p{font-size:23px;max-width:300px}.botanical-banner-credit{font-size:8px;right:10px;bottom:6px}}
+@media(print){.botanical-banner{display:none}}

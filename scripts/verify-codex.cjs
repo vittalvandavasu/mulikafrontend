@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('node:assert/strict');
 const root = path.resolve(__dirname, '../dist');
-const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png'};
+const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png','.webp':'image/webp'};
 const server = http.createServer((req,res) => {
   if(req.url.startsWith('/api/')) { res.writeHead(404); return res.end('No API on static hosting'); }
   const pathname = new URL(req.url,'http://localhost').pathname;
@@ -19,7 +19,7 @@ const server = http.createServer((req,res) => {
   const page=await browser.newPage({viewport:{width:1440,height:1000}});
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
-  const go=async(hash)=>{await page.goto('http://127.0.0.1:4178/'+hash);await page.locator('h1').first().waitFor();};
+  const go=async(hash)=>{await page.goto('http://127.0.0.1:4178/'+hash);await page.locator('main h1,main h2').first().waitFor();};
   const captureHome = async (name) => {
     for (const element of await page.locator('.codex-masthead,.landscape-object,.index-editorial').all()) {
       await element.scrollIntoViewIfNeeded();
@@ -106,12 +106,29 @@ const server = http.createServer((req,res) => {
     assert.equal(await page.getByRole('checkbox',{name:/Searching for an ailment/}).isChecked(),false);
     for(const width of [360,390,430,768,1024,1440]) {
       await page.setViewportSize({width,height:900});
-      for(const hash of ['#home','#index','#az','#taxonomy','#search','#sources','#compare']) {
+      for(const hash of ['#home','#index','#herbs','#az','#taxonomy','#search','#ailments','#sources','#codex','#compare','#glossary','#community']) {
         await go(hash);
         const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1);
         assert(!overflow,'Horizontal overflow: '+width+' '+hash);
+        if(hash !== '#home') {
+          const art = page.locator('.botanical-banner img').first();
+          await art.waitFor();
+          await art.evaluate(image => image.decode());
+          assert(await art.evaluate(image => image.naturalWidth > 0),'Missing editorial image: '+hash);
+        }
       }
     }
+    for (const width of [1440,390]) {
+      await page.setViewportSize({width,height:900});
+      for (const hash of ['search','herbs','sources','community']) {
+        await go('#'+hash);
+        await page.locator('.botanical-banner img').evaluate(image => image.decode());
+        await page.screenshot({path:path.join(require('os').tmpdir(),'mulika-'+hash+'-'+width+'.png')});
+      }
+    }
+    await page.getByRole('navigation',{name:'Mobile primary'}).getByRole('button',{name:'Saved',exact:true}).click();
+    await page.locator('[data-scene="saved"] img').evaluate(image => image.decode());
+    await page.getByRole('button',{name:'Close panel',exact:true}).click();
     await page.setViewportSize({width:390,height:844});
     await go('#home');
     await captureHome('codex-mobile.png');
@@ -127,6 +144,6 @@ const server = http.createServer((req,res) => {
     assert.equal(await page.locator('.guide-answer h2').textContent(),'Search the collection.');
     assert.equal(await page.locator('.landscape-object').first().evaluate(el=>getComputedStyle(el).opacity),'1');
     assert.deepEqual(errors,[]);
-    console.log('PASS: visual index, A–Z language/letter filters, dossier anchors, Back, keyboard destination finder, family filtering, comparison, folio route, static search, 42 responsive checks, dark mode, no page errors.');
+    console.log('PASS: visual index, A–Z language/letter filters, dossier anchors, Back, keyboard destination finder, family filtering, comparison, folio route, static search, 72 responsive checks with loaded imagery, dark mode, no page errors.');
   } finally { await browser.close(); server.close(); }
 })().catch(error=>{console.error(error);server.close();process.exitCode=1;});
