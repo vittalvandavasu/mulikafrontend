@@ -1,4 +1,5 @@
 import { useDialog } from '../hooks/useDialog';
+import { EvidenceArchitecture } from './EvidenceArchitecture';
 import React, { useState } from 'react';
 import { X, Server, Database, Cpu, Layers, ShieldCheck, Code, Globe, Terminal, FileCode, CheckCircle2, ArrowRight } from 'lucide-react';
 
@@ -107,6 +108,7 @@ export const SystemArchitectureModal: React.FC<SystemArchitectureModalProps> = (
           {/* Tab 1: Overview */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
+              <EvidenceArchitecture/>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 rounded-xl bg-[var(--surface)] border border-[var(--line)] space-y-2">
                   <div className="flex items-center gap-2 text-[var(--accent)] font-mono text-xs uppercase font-bold">

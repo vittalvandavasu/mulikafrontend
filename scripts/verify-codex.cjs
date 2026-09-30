@@ -90,6 +90,10 @@ const server = http.createServer((req,res) => {
     assert.equal(await page.locator('.comparison-editorial').count(),0);
     await go('#codex?book=mulika&page=8&entry=mulika-p8-1');
     await page.locator('.archive-shell').waitFor();
+    await go('#sources');
+    await page.getByRole('heading',{name:'Epistemological Methodology & Provenance Architecture',exact:true}).waitFor();
+    assert.equal(await page.locator('.evidence-tier-grid>li').count(),4);
+    assert((await page.locator('.evidence-processing').textContent()).includes('Not treated as source evidence.'));
     await go('#search');
     await page.locator('#ask-input').fill('Sleep');
     await page.getByRole('button',{name:'Find sources',exact:true}).click();
