@@ -29,6 +29,12 @@ const server = http.createServer((req,res) => {
     await page.screenshot({path:path.resolve(__dirname,'../'+name),fullPage:true});
   };
   try {
+    await go('#herbs');
+    await page.getByRole('button',{name:'Enlarge editorial image'}).click();
+    await page.getByRole('dialog',{name:'Botanical imagery'}).waitFor();
+    await page.locator('.image-viewer figure img').evaluate(image => image.decode());
+    await page.keyboard.press('Escape');
+    assert(await page.getByRole('button',{name:'Enlarge editorial image'}).evaluate(el => el === document.activeElement));
     await go('');
     await page.locator('#home-search-input').fill('Ginger');
     await page.getByRole('button',{name:'Search Mulika',exact:true}).click();
@@ -109,6 +115,7 @@ const server = http.createServer((req,res) => {
       for(const hash of ['#home','#index','#herbs','#az','#taxonomy','#search','#ailments','#sources','#codex','#compare','#glossary','#community']) {
         await go(hash);
         const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1);
+        if(overflow) console.log(await page.evaluate(() => [...document.querySelectorAll('main *')].filter(el => el.getBoundingClientRect().right > innerWidth + 1).slice(0,12).map(el => ({tag:el.tagName,classes:el.className,text:el.textContent.slice(0,90),right:el.getBoundingClientRect().right}))));
         assert(!overflow,'Horizontal overflow: '+width+' '+hash);
         if(hash !== '#home') {
           const art = page.locator('.botanical-banner img').first();
@@ -120,9 +127,9 @@ const server = http.createServer((req,res) => {
     }
     for (const width of [1440,390]) {
       await page.setViewportSize({width,height:900});
-      for (const hash of ['search','herbs','sources','community']) {
+      for (const hash of ['search','herbs','sources','community','home']) {
         await go('#'+hash);
-        await page.locator('.botanical-banner img').evaluate(image => image.decode());
+        if(hash !== 'home') await page.locator('.botanical-banner img').evaluate(image => image.decode());
         await page.screenshot({path:path.join(require('os').tmpdir(),'mulika-'+hash+'-'+width+'.png')});
       }
     }

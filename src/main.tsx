@@ -6,6 +6,7 @@ import './index.css';
 import './codex.css';
 import './homepage.css';
 import './botanical-pages.css';
+import './platform.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

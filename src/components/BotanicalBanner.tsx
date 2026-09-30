@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Expand } from 'lucide-react';
+import { Sheet } from './Sheet';
 
 const scenes: Record<string, { image: string; caption: string; note: string; position?: string }> = {
   index: { image: 'garden', caption: 'Every path starts with curiosity.', note: 'THE MULIKA COLLECTION' },
@@ -17,15 +19,19 @@ const scenes: Record<string, { image: string; caption: string; note: string; pos
 
 /** Editorial atmosphere only: never a specimen image or a source manuscript scan. */
 export function BotanicalBanner({ page, compact = false }: { page: string; compact?: boolean }) {
+  const [expanded, setExpanded] = useState(false);
   const scene = scenes[page];
   if (!scene) return null;
   const original = scene.image === 'preparation-editorial';
-  return <div className={`botanical-banner ${compact ? 'botanical-banner-compact' : ''}`} data-scene={page}>
+  return <><div className={`botanical-banner ${compact ? 'botanical-banner-compact' : ''}`} data-scene={page}>
     <picture>
       {!original && <source media="(max-width: 700px)" srcSet={`/images/${scene.image}-mobile.webp`}/>}
       <img src={`/images/${scene.image}.${original ? 'png' : 'webp'}`} alt="" width="1536" height="1024" style={{objectPosition:scene.position}} decoding="async"/>
     </picture>
     <div className="botanical-banner-copy"><span>{scene.note}</span><p>{scene.caption}</p></div>
     <span className="botanical-banner-credit">Illustrative imagery</span>
-  </div>;
+    <button className="botanical-expand" onClick={() => setExpanded(true)} aria-label="Enlarge editorial image"><Expand size={17}/><span>View image</span></button>
+  </div>
+  {expanded && <Sheet title="Botanical imagery" onClose={() => setExpanded(false)} className="image-viewer"><figure><img src={`/images/${scene.image}.${original ? 'png' : 'webp'}`} alt={scene.image === 'garden' ? 'Illustrative leafy garden with a sunlit path and pool' : scene.image === 'infusion' ? 'Illustrative amber bottle, ceramic bowl and herbs on linen' : scene.image === 'reading' ? 'Illustrative blank notebook and botanical materials on a wooden table' : 'Illustrative hands preparing herbs with a stone mortar'}/><figcaption>{scene.caption} <span>Generated editorial artwork.</span></figcaption></figure></Sheet>}
+  </>;
 }

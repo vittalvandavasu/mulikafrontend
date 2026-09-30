@@ -1,0 +1,137 @@
+/* Shared spacing and image presentation, layered over existing functional layouts. */
+:root{--page-gutter:clamp(20px,4vw,56px);--page-width:1360px;--section-space:clamp(36px,5vw,72px)}
+html{scroll-padding-top:105px}
+#main-content> .max-w-7xl,.nav-inner,.location-strip{max-width:var(--page-width);padding-inline:var(--page-gutter)}
+#main-content> .max-w-7xl{padding-bottom:32px}
+.nav-inner{padding-block:18px}
+.location-strip{margin-inline:auto;min-height:52px}
+.desktop-nav button{min-height:46px;padding-inline:17px}
+.botanical-banner{min-height:clamp(300px,28vw,410px);margin:0 auto 32px}
+.botanical-banner-copy{max-width:var(--page-width);padding:56px var(--page-gutter) 70px}
+.botanical-banner-copy>p{font-size:clamp(34px,3.8vw,56px);max-width:680px;line-height:1.14}
+.botanical-banner img{object-position:center 52%}
+.botanical-banner::after{background:linear-gradient(90deg,rgba(13,29,18,.82),rgba(13,29,18,.52) 48%,rgba(13,29,18,.03) 85%)}
+.botanical-banner-compact{min-height:174px;margin-bottom:8px}
+.botanical-banner-compact .botanical-banner-copy{padding:30px var(--page-gutter) 44px}
+.botanical-banner-compact .botanical-banner-copy>p{font-size:32px;max-width:650px}
+.botanical-banner-credit{left:var(--page-gutter);right:auto;bottom:15px;font-size:10px;background:#1733219e}
+.botanical-expand{position:absolute;right:var(--page-gutter);bottom:15px;display:flex;align-items:center;gap:9px;min-height:44px;padding:10px 15px;border:1px solid #ffffff70;background:#172c21c9;color:#fffdf3;border-radius:4px;font-size:12px;backdrop-filter:blur(8px)}
+.botanical-expand:hover{background:#fffdf3;color:#20372a}
+.botanical-expand:focus-visible{outline:3px solid white;outline-offset:4px}
+.image-viewer.mulika-sheet{inset:0;margin:auto;width:min(1180px,94vw);height:fit-content;max-height:94dvh;max-width:none;border-radius:10px}
+.image-viewer .sheet-content{padding:24px}
+.image-viewer .sheet-header{margin-bottom:20px}
+.image-viewer figure{margin:0}
+.image-viewer figure img{display:block;width:100%;height:auto;max-height:70dvh;object-fit:contain;background:#17261d;border-radius:4px}
+.image-viewer figcaption{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding-top:16px;font-size:14px;line-height:1.6}
+.image-viewer figcaption span{font-size:12px;color:var(--muted)}
+.provenance-body>.botanical-banner{min-height:230px}
+.provenance-body>.botanical-banner .botanical-banner-copy{padding:28px 24px 76px}
+.provenance-body>.botanical-banner .botanical-banner-copy>p{font-size:29px}
+.provenance-body>.botanical-banner .botanical-banner-credit{left:18px;font-size:8px}
+.provenance-body>.botanical-banner .botanical-expand{right:18px}
+/* Distinct imagery makes the homepage pathways easier to distinguish. */
+.botanical-home .home-section{padding-block:var(--section-space)}
+.botanical-home .home-paths{padding-top:40px;gap:28px}
+.home-paths .path-art{height:clamp(260px,24vw,350px);background-size:cover}
+.home-paths .crop-0{background-image:url('/images/garden.webp');background-position:center}
+.home-paths .crop-2{background-image:url('/images/infusion.webp');background-position:center;filter:none}
+.home-paths .path-copy{padding:32px}
+.home-paths .path-copy p{font-size:15px;line-height:1.8}
+.botanical-home .needs-grid{gap:18px}
+.botanical-home .need-card{min-height:160px;padding:28px}
+.botanical-home .home-herbs{gap:24px}
+.botanical-home .home-herb{padding:32px;min-height:380px}
+.botanical-home .collection-grid{gap:28px}
+.botanical-home .discovery-collection{min-height:460px;padding:30px}
+.discovery-collection::before{content:'';position:absolute;inset:0 0 auto;height:255px;background-size:cover;background-position:center;transition:filter .25s}
+.discovery-collection.collection-0::before{background-image:url('/images/garden.webp')}
+.discovery-collection.collection-1::before{background-image:url('/images/infusion.webp')}
+.discovery-collection.collection-2::before{background-image:url('/images/reading.webp')}
+.discovery-collection:hover::before{filter:brightness(1.08)}
+.discovery-collection .collection-orb{display:none}
+.botanical-home .preparation-story{gap:0}
+/* Comfortable reading density throughout catalogues, results and reference pages. */
+.herb-dossier-index>div:first-child{gap:32px;padding-bottom:28px}
+.herb-dossier-index>div:first-child h1{margin-block:10px 14px;line-height:1.15}
+.herb-dossier-index>div:first-child p{line-height:1.8;max-width:65ch}
+.herb-card-grid{gap:24px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.herb-card-grid>div{padding:28px;border-radius:8px;min-width:0}
+.herb-card-grid>div>div:last-child{flex-wrap:wrap;gap:12px}
+.herb-card-grid span{overflow-wrap:anywhere;min-width:0}
+.catalogue-list{gap:0 48px}
+.catalogue-list>button{padding:28px 8px;min-height:120px;border-radius:4px}
+.catalogue-list>button:hover{background:var(--surface)}
+.catalogue-list span span,.catalogue-list i{font-size:13px;line-height:1.65}
+.catalogue-modes{gap:8px;padding-bottom:18px}
+.catalogue-modes button{font-size:13px;min-height:46px}
+.alphabet-rail{gap:7px;margin-block:26px}
+.alphabet-rail button{min-width:46px;min-height:46px;border-radius:4px}
+.family-select{font-size:14px;gap:12px}
+.source-grid{gap:28px}
+.source-grid article{padding:30px;border-radius:8px}
+.source-grid article p{line-height:1.8}
+.results-layout{gap:32px;max-width:1120px}
+.formulation-grid{gap:24px}
+.formulation-card,.result-summary,.reading-panel{padding:28px;border-radius:8px}
+.traditional-use,.preparation-excerpt,.safety-alert p{font-size:14px;line-height:1.8}
+.source-citation,.card-actions{font-size:12px;line-height:1.7}
+.card-actions{flex-wrap:wrap;gap:12px}
+.card-actions button{min-height:44px}
+.reading-panel p,.answer-text{line-height:1.9}
+.reader-selection select{width:100%;min-width:0}
+.button-row{gap:12px}
+.search-hero{padding-bottom:36px}
+.search-composer{border-radius:8px;padding:22px}
+.search-composer textarea{line-height:1.6}
+.search-hero .hero-description{font-size:16px}
+.ailment-context{border-radius:8px;padding:16px 20px}
+.sheet-content{padding:28px}
+.sheet-header{gap:20px;padding-bottom:22px}
+.codex-menu>button{padding-block:20px}
+#main-content :is(input:not([type=checkbox]):not([type=radio]),select){min-height:46px}
+#main-content :is(button,a,input,select,textarea){scroll-margin-block:115px}
+@media(max-width:1050px){.herb-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.home-paths .path-copy{padding:24px}.botanical-home .home-herb{padding:24px}.botanical-home .discovery-collection{min-height:440px;padding:24px}.discovery-collection::before{height:230px}.desktop-nav button{padding-inline:10px}}
+@media(max-width:767px){
+  html{scroll-padding-top:85px}
+  .nav-inner{padding-block:12px}
+  .botanical-banner{min-height:270px;margin-bottom:20px}
+  .botanical-banner-copy{padding:35px var(--page-gutter) 82px}
+  .botanical-banner-copy>p{font-size:34px;max-width:330px}
+  .botanical-banner-compact{min-height:148px;margin-bottom:0}
+  .botanical-banner-compact .botanical-banner-copy{padding:20px var(--page-gutter) 54px}
+  .botanical-banner-compact .botanical-banner-copy>p{font-size:23px;max-width:320px}
+  .botanical-banner-copy>span{font-size:9px}
+  .botanical-banner-credit{bottom:13px;font-size:8px;max-width:140px}
+  .botanical-expand{bottom:8px;padding:8px 11px;font-size:11px}
+  .image-viewer.mulika-sheet{width:96vw}
+  .image-viewer .sheet-content{padding:16px}
+  .image-viewer figcaption{font-size:13px;gap:8px}
+  .botanical-home .home-paths{gap:24px;padding-top:28px}
+  .home-paths .path-art{height:280px}
+  .home-paths .crop-0{background-image:url('/images/garden-mobile.webp')}
+  .home-paths .crop-2{background-image:url('/images/infusion-mobile.webp')}
+  .botanical-home .needs-grid{gap:12px}
+  .botanical-home .need-card{padding:20px;min-height:145px}
+  .botanical-home .home-herbs{gap:14px}
+  .botanical-home .home-herb{padding:22px 16px}
+  .botanical-home .discovery-collection{min-height:420px}
+  .discovery-collection::before{height:230px}
+  .discovery-collection.collection-0::before{background-image:url('/images/garden-mobile.webp')}
+  .discovery-collection.collection-1::before{background-image:url('/images/infusion-mobile.webp')}
+  .discovery-collection.collection-2::before{background-image:url('/images/reading-mobile.webp')}
+  .herb-card-grid{grid-template-columns:minmax(0,1fr);gap:20px}
+  .herb-card-grid>div,.source-grid article{padding:24px}
+  .catalogue-list>button{padding:22px 4px}
+  .catalogue-modes button{padding:9px 12px}
+  .formulation-card,.result-summary,.reading-panel{padding:22px}
+  .search-hero h1{font-size:36px;margin:14px 0}
+  .search-hero .hero-kicker{display:none}
+  .search-hero .hero-description{font-size:14px;line-height:1.7;margin-bottom:22px}
+  .search-hero-compact h1{font-size:27px}
+  .search-composer{padding:16px}
+  .sheet-content{padding:22px}
+  .mobile-nav{padding-bottom:max(8px,env(safe-area-inset-bottom))}
+  #main-content :is(input:not([type=checkbox]):not([type=radio]),select,textarea){font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){.discovery-collection::before{transition:none}}
