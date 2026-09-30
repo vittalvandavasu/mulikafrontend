@@ -408,6 +408,7 @@ export function App() {
               {!searchResult && !loading && !searchError && <DiscoveryPaths navigate={handleTabChange} search={handleSearch} savedCount={savedRemedies.length} openSaved={() => setIsSavedDrawerOpen(true)}/>}
               {searchResult && <SearchContextSummary value={submittedContext}/>}
               <SearchResultsView
+                context={submittedContext}
                 searchResult={searchResult}
                 loading={loading}
                 onSelectHerb={(herbName) => {

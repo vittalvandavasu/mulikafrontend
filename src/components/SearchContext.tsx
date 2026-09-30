@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 export interface AilmentContext { enabled: boolean; age: string; gender: string }
 export const EMPTY_CONTEXT: AilmentContext = { enabled: false, age: '', gender: '' };
 
 export function SearchContext({ value, onChange }: { value: AilmentContext; onChange: (value: AilmentContext) => void }) {
-  return <section className="ailment-context" aria-label="Optional ailment search context">
-    <label className="context-toggle"><input type="checkbox" checked={value.enabled} onChange={e => onChange({ ...value, enabled: e.target.checked })}/><span>Searching for an ailment?<small>Add age and gender context · optional</small></span></label>
-    {value.enabled && <div className="context-fields"><label htmlFor="ailment-age">Age group</label><select id="ailment-age" aria-describedby="context-explanation" value={value.age} onChange={e => onChange({ ...value, age: e.target.value })}><option value="">Not specified</option>{['Under 2','2–12','13–17','18–64','65+'].map(age => <option key={age}>{age}</option>)}</select><label htmlFor="ailment-gender">Gender</label><select id="ailment-gender" aria-describedby="context-explanation" value={value.gender} onChange={e => onChange({ ...value, gender: e.target.value })}><option value="">Not specified</option>{['Woman','Man','Non-binary','Self-described','Prefer not to say'].map(gender => <option key={gender}>{gender}</option>)}</select><p id="context-explanation">Kept with this search on this page only. These details do not filter the source records or assess whether a formulation is suitable for you. Gender is not used to infer biological sex.</p><button type="button" onClick={() => onChange(EMPTY_CONTEXT)}>Clear context</button></div>}
-  </section>;
+  const id = useId();
+  return <fieldset className="search-demographics"><legend>Personal context <span>optional</span></legend>
+    <div className="demographic-grid">
+      <label htmlFor={id+'-age'}>Age group<select aria-label="Age group" id={id+'-age'} value={value.age} onChange={e => onChange({...value, enabled:true, age:e.target.value})}><option value="">Not specified</option>{['Under 2','2–12','13–17','18–64','65+'].map(age => <option key={age}>{age}</option>)}</select></label>
+      <label htmlFor={id+'-gender'}>Gender<select aria-label="Gender" id={id+'-gender'} value={value.gender} onChange={e => onChange({...value, enabled:true, gender:e.target.value})}><option value="">Not specified</option>{['Woman','Man','Non-binary','Self-described','Prefer not to say'].map(gender => <option key={gender}>{gender}</option>)}</select></label>
+    </div><div className="demographic-note"><small>Context for your next step. Source results do not assess personal suitability.</small>{(value.age || value.gender) && <button type="button" onClick={() => onChange(EMPTY_CONTEXT)}>Clear context</button>}</div>
+  </fieldset>;
 }
 
 export function SearchContextSummary({ value }: { value: AilmentContext }) {

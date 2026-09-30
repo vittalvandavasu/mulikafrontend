@@ -41,7 +41,7 @@ const server = http.createServer((req,res) => {
     await page.locator('.results-layout,.abstention').waitFor();
     await go('#home');
     await page.getByRole('button',{name:'Start customizing',exact:true}).click();
-    assert(await page.getByRole('checkbox',{name:/Searching for an ailment/}).isChecked());
+    await page.getByLabel('Age group',{exact:true}).waitFor();
     await go('#home');
     await page.getByRole('button',{name:'Preview the collection',exact:true}).click();
     await page.locator('#home-collections').waitFor();
@@ -96,12 +96,35 @@ const server = http.createServer((req,res) => {
     await page.locator('.results-layout,.abstention').waitFor();
     assert(await page.locator('.formulation-card').count()>0);
     assert.equal(await page.locator('.context-summary').count(),0);
-    await page.getByRole('checkbox',{name:/Searching for an ailment/}).check();
     await page.getByLabel('Age group',{exact:true}).selectOption('18–64');
     await page.getByLabel('Gender',{exact:true}).selectOption('Non-binary');
     await page.getByRole('button',{name:'Find sources',exact:true}).click();
     await page.locator('.results-layout').waitFor();
     assert((await page.locator('.context-summary').textContent()).includes('Non-binary'));
+    const firstRecord = page.locator('.formulation-card').first();
+    await firstRecord.getByRole('button',{name:/Prepare yourself/}).click();
+    await page.getByRole('dialog',{name:'Prepare yourself',exact:true}).waitFor();
+    assert(await page.locator('.journey-recipe').textContent());
+    await page.keyboard.press('Escape');
+    await firstRecord.getByRole('button',{name:/Buy herbs and\/or concoction/}).click();
+    let orderPanel = page.getByRole('dialog',{name:'Buy herbs and/or concoction',exact:true});
+    assert.equal(await orderPanel.locator('#order-ailments').count(),0);
+    assert.equal(await orderPanel.getByLabel('Age group',{exact:true}).inputValue(),'18–64');
+    await orderPanel.getByRole('radio',{name:'Herbs only',exact:true}).check();
+    await orderPanel.getByRole('button',{name:'Order',exact:true}).click();
+    await orderPanel.locator('#order-ailments').fill('Existing condition for review');
+    await orderPanel.getByRole('button',{name:'Review draft',exact:true}).click();
+    assert((await orderPanel.getByRole('region',{name:'Order draft'}).textContent()).includes('Existing condition for review'));
+    await orderPanel.getByRole('button',{name:'Done',exact:true}).click();
+    await firstRecord.getByRole('button',{name:/Customize for me/}).click();
+    const customPanel = page.getByRole('dialog',{name:'Customize your preparation',exact:true});
+    await customPanel.getByRole('button',{name:'Order customized preparation',exact:true}).click();
+    assert.equal(await customPanel.locator('#order-ailments').inputValue(),'');
+    await customPanel.getByRole('checkbox',{name:'No pre-existing ailments to disclose',exact:true}).check();
+    assert(await customPanel.locator('#order-ailments').isDisabled());
+    await customPanel.getByRole('button',{name:'Review draft',exact:true}).click();
+    assert((await customPanel.getByRole('region',{name:'Order draft'}).textContent()).includes('None disclosed'));
+    await page.keyboard.press('Escape');
     await page.getByLabel('Gender',{exact:true}).selectOption('Woman');
     assert(!(await page.locator('.context-summary').textContent()).includes('Woman'));
     await page.getByRole('button',{name:'Clear context',exact:true}).click();
@@ -109,7 +132,7 @@ const server = http.createServer((req,res) => {
     await page.locator('.results-layout').waitFor();
     assert.equal(await page.locator('.context-summary').count(),0);
     await page.reload();
-    assert.equal(await page.getByRole('checkbox',{name:/Searching for an ailment/}).isChecked(),false);
+    assert.equal(await page.getByLabel('Age group',{exact:true}).inputValue(),'');
     for(const width of [360,390,430,768,1024,1440]) {
       await page.setViewportSize({width,height:900});
       for(const hash of ['#home','#index','#herbs','#az','#taxonomy','#search','#ailments','#sources','#codex','#compare','#glossary','#community']) {
@@ -133,6 +156,16 @@ const server = http.createServer((req,res) => {
         await page.screenshot({path:path.join(require('os').tmpdir(),'mulika-'+hash+'-'+width+'.png')});
       }
     }
+    await go('#search');
+    await page.locator('#ask-input').fill('Sleep');
+    await page.getByRole('button',{name:'Find sources',exact:true}).click();
+    await page.locator('.formulation-card').first().waitFor();
+    await page.locator('.formulation-card').first().getByRole('button',{name:/Buy herbs and/}).click();
+    const mobileOrder = page.getByRole('dialog',{name:'Buy herbs and/or concoction',exact:true});
+    await mobileOrder.getByRole('button',{name:'Order',exact:true}).click();
+    assert(await mobileOrder.evaluate(el => el.scrollWidth <= el.clientWidth + 1));
+    await page.screenshot({path:path.join(require('os').tmpdir(),'mulika-order-mobile.png')});
+    await page.keyboard.press('Escape');
     await page.getByRole('navigation',{name:'Mobile primary'}).getByRole('button',{name:'Saved',exact:true}).click();
     await page.locator('[data-scene="saved"] img').evaluate(image => image.decode());
     await page.getByRole('button',{name:'Close panel',exact:true}).click();
