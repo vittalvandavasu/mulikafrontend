@@ -9,6 +9,7 @@ import './botanical-pages.css';
 import './platform.css';
 import './result-journey.css';
 import './evidence-architecture.css';
+import './discovery.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

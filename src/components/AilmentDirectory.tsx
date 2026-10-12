@@ -1,3 +1,4 @@
+import { ContextActions } from './ContextActions';
 import React, { useState, useMemo } from 'react';
 import { AilmentInfo, AyurvedicEntry, HerbMonograph, UserSubmittedRemedy } from '../types';
 import {
@@ -304,6 +305,7 @@ export const AilmentDirectory: React.FC<AilmentDirectoryProps> = ({
               <p className="text-xs sm:text-sm text-[var(--muted)] leading-relaxed max-w-4xl font-sans">
                 {selectedAilment.description}
               </p>
+              <ContextActions make={associatedManuscripts.length > 0} entity={{kind:'ailment',id:selectedAilment.id,label:selectedAilment.name,recordIds:associatedManuscripts.map(entry=>entry.id)}}/>
 
               <div className="inline-flex flex-wrap items-center gap-2 p-3 rounded-lg bg-[var(--canvas)] border border-[var(--line)] text-xs text-[var(--ink)]">
                 <span className="font-bold text-[var(--accent)]">Dosha Pathology (Nidana):</span>

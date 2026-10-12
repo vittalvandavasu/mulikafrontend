@@ -1,5 +1,7 @@
 import { HerbCatalogue } from './HerbCatalogue';
 import { useDialog } from '../hooks/useDialog';
+import { ContextActions } from './ContextActions';
+import { relatedHerbRecords } from '../lib/experience';
 import React, { useState, useMemo } from 'react';
 import { HerbMonograph, AyurvedicEntry, UserSubmittedRemedy } from '../types';
 import { BotanicalConfidenceBadge } from './ProvenanceDrawer';
@@ -252,6 +254,7 @@ export const HerbEncyclopedia: React.FC<HerbEncyclopediaProps> = ({
               <p className="text-sm sm:text-base text-[var(--ink)] leading-relaxed">
                 {selectedHerb.description}
               </p>
+              <ContextActions make={relatedHerbRecords(selectedHerb,entries).length > 0} entity={{kind:'herb',id:selectedHerb.id,label:englishHerbName(selectedHerb),recordIds:relatedHerbRecords(selectedHerb,entries).map(entry=>entry.id)}}/>
 
               {/* Classical Ayurvedic Energetics Matrix (Dravyaguna) */}
               <div id="dossier-profile" className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-xl bg-[var(--surface)] border border-[var(--line)]">

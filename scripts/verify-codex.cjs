@@ -40,12 +40,12 @@ const server = http.createServer((req,res) => {
     await page.getByRole('button',{name:'Search Mulika',exact:true}).click();
     await page.locator('.results-layout,.abstention').waitFor();
     await go('#home');
-    await page.getByRole('button',{name:'Start customizing',exact:true}).click();
-    await page.getByLabel('Age group',{exact:true}).waitFor();
+    await page.getByRole('button',{name:'Start discovering',exact:true}).click();
+    await page.locator('#ask-input').waitFor();
     await go('#home');
-    await page.getByRole('button',{name:'Preview the collection',exact:true}).click();
-    await page.locator('#home-collections').waitFor();
-    assert((await page.locator('#home-collections').textContent()).includes('not products'));
+    await page.getByRole('button',{name:'Check availability',exact:true}).click();
+    await page.getByRole('heading',{name:'Purchasing is coming soon.',exact:true}).waitFor();
+    await go('#home');
     await page.locator('.home-herb button').first().click();
     await page.getByRole('dialog',{name:'Herb profile'}).waitFor();
     await page.keyboard.press('Escape');
@@ -96,55 +96,74 @@ const server = http.createServer((req,res) => {
     assert((await page.locator('.evidence-processing').textContent()).includes('Not treated as source evidence.'));
     await go('#search');
     await page.locator('#ask-input').fill('Sleep');
-    await page.getByRole('button',{name:'Find sources',exact:true}).click();
+    await page.locator('.search-composer').getByRole('button',{name:'Discover',exact:true}).click();
     await page.locator('.results-layout,.abstention').waitFor();
     assert(await page.locator('.formulation-card').count()>0);
     assert.equal(await page.locator('.context-summary').count(),0);
+    await page.locator('.search-profile summary').click();
     await page.getByLabel('Age group',{exact:true}).selectOption('18–64');
     await page.getByLabel('Gender',{exact:true}).selectOption('Non-binary');
-    await page.getByRole('button',{name:'Find sources',exact:true}).click();
+    await page.locator('.search-composer').getByRole('button',{name:'Discover',exact:true}).click();
     await page.locator('.results-layout').waitFor();
     assert((await page.locator('.context-summary').textContent()).includes('Non-binary'));
+    assert.equal(await page.locator('.source-summary').getAttribute('open'),null);
+    assert.equal(await page.locator('.record-references').first().getAttribute('open'),null);
     const firstRecord = page.locator('.formulation-card').first();
-    await firstRecord.getByRole('button',{name:/Prepare yourself/}).click();
-    await page.getByRole('dialog',{name:'Prepare yourself',exact:true}).waitFor();
-    assert(await page.locator('.journey-recipe').textContent());
-    await page.keyboard.press('Escape');
-    await firstRecord.getByRole('button',{name:/Buy herbs and\/or concoction/}).click();
-    let orderPanel = page.getByRole('dialog',{name:'Buy herbs and/or concoction',exact:true});
-    assert.equal(await orderPanel.locator('#order-ailments').count(),0);
-    assert.equal(await orderPanel.getByLabel('Age group',{exact:true}).inputValue(),'18–64');
-    await orderPanel.getByRole('radio',{name:'Herbs only',exact:true}).check();
-    await orderPanel.getByRole('button',{name:'Order',exact:true}).click();
-    await orderPanel.locator('#order-ailments').fill('Existing condition for review');
-    await orderPanel.getByRole('button',{name:'Review draft',exact:true}).click();
-    assert((await orderPanel.getByRole('region',{name:'Order draft'}).textContent()).includes('Existing condition for review'));
-    await orderPanel.getByRole('button',{name:'Done',exact:true}).click();
-    await firstRecord.getByRole('button',{name:/Customize for me/}).click();
-    const customPanel = page.getByRole('dialog',{name:'Customize your preparation',exact:true});
-    await customPanel.getByRole('button',{name:'Order customized preparation',exact:true}).click();
-    assert.equal(await customPanel.locator('#order-ailments').inputValue(),'');
-    await customPanel.getByRole('checkbox',{name:'No pre-existing ailments to disclose',exact:true}).check();
-    assert(await customPanel.locator('#order-ailments').isDisabled());
-    await customPanel.getByRole('button',{name:'Review draft',exact:true}).click();
-    assert((await customPanel.getByRole('region',{name:'Order draft'}).textContent()).includes('None disclosed'));
+    await firstRecord.getByRole('button',{name:'Make Yourself',exact:true}).click();
+    await page.getByRole('heading',{name:'Make Yourself',exact:true}).waitFor();
+    assert(await page.locator('.record-preparation').first().textContent());
+    const ingredient = page.getByRole('button',{name:/Check availability/}).first();
+    if(await ingredient.count()) {
+      await ingredient.click();
+      await page.getByRole('heading',{name:'Purchasing is coming soon.',exact:true}).waitFor();
+      assert((await page.locator('.experience-page').textContent()).includes('Ingredient carried'));
+      await page.getByRole('button',{name:'Explore recorded preparations',exact:true}).click();
+    }
+    await page.locator('.experience-back').click();
+    assert.equal(await page.locator('#ask-input').inputValue(),'Sleep');
+    await firstRecord.getByRole('button',{name:'Buy',exact:true}).click();
+    await page.getByRole('heading',{name:'Purchasing is coming soon.',exact:true}).waitFor();
+    assert.equal(await page.locator('.product-grid article').count(),0);
+    await page.locator('.experience-back').click();
+    await page.locator('#ask-input').fill('Unsubmitted question');
+    assert.equal(await page.locator('.discovery-results-heading h2').textContent(),'Sleep');
+    await firstRecord.getByRole('button',{name:'Consult a Physician',exact:true}).click();
+    await page.getByRole('heading',{name:'Consult a Physician',exact:true}).waitFor();
+    assert.equal(await page.getByLabel('Your concern',{exact:true}).inputValue(),'Sleep');
+    assert.equal(await page.getByLabel('Age group',{exact:true}).inputValue(),'18–64');
+    await page.getByLabel('Your concern',{exact:true}).fill('Sleep question for professional review');
+    await page.locator('.consult-context textarea').last().fill('Local private note');
+    await page.getByRole('button',{name:'Review context',exact:true}).click();
+    assert((await page.getByRole('region',{name:'Consultation context review'}).textContent()).includes('Local private note'));
+    assert((await page.locator('.consult-unavailable').textContent()).includes('not connected'));
+    await page.locator('.experience-back').click();
+    assert.equal(await page.locator('#ask-input').inputValue(),'Unsubmitted question');
+    await page.locator('#ask-input').fill('Sleep');
+    await firstRecord.getByRole('button',{name:'Consult a Physician',exact:true}).click();
+    assert.equal(await page.locator('.consult-context textarea').last().inputValue(),'');
+    await page.locator('.experience-back').click();
+    await page.locator('.source-summary>summary').click();
+    await page.getByRole('heading',{name:'What the sources record',exact:true}).waitFor();
+    await page.locator('.record-references>summary').first().click();
+    await firstRecord.getByRole('button',{name:'View evidence',exact:true}).click();
+    await page.getByRole('dialog',{name:'The source behind the claim',exact:true}).waitFor();
     await page.keyboard.press('Escape');
     await page.getByLabel('Gender',{exact:true}).selectOption('Woman');
     assert(!(await page.locator('.context-summary').textContent()).includes('Woman'));
     await page.getByRole('button',{name:'Clear context',exact:true}).click();
-    await page.getByRole('button',{name:'Find sources',exact:true}).click();
+    await page.locator('.search-composer').getByRole('button',{name:'Discover',exact:true}).click();
     await page.locator('.results-layout').waitFor();
     assert.equal(await page.locator('.context-summary').count(),0);
     await page.reload();
     assert.equal(await page.getByLabel('Age group',{exact:true}).inputValue(),'');
     for(const width of [360,390,430,768,1024,1440]) {
       await page.setViewportSize({width,height:900});
-      for(const hash of ['#home','#index','#herbs','#az','#taxonomy','#search','#ailments','#sources','#codex','#compare','#glossary','#community']) {
+      for(const hash of ['#home','#index','#herbs','#az','#taxonomy','#search','#ailments','#sources','#codex','#compare','#glossary','#community','#make','#buy','#consult']) {
         await go(hash);
         const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1);
         if(overflow) console.log(await page.evaluate(() => [...document.querySelectorAll('main *')].filter(el => el.getBoundingClientRect().right > innerWidth + 1).slice(0,12).map(el => ({tag:el.tagName,classes:el.className,text:el.textContent.slice(0,90),right:el.getBoundingClientRect().right}))));
         assert(!overflow,'Horizontal overflow: '+width+' '+hash);
-        if(hash !== '#home') {
+        if(!['#home','#search','#make','#buy','#consult'].includes(hash)) {
           const art = page.locator('.botanical-banner img').first();
           await art.waitFor();
           await art.evaluate(image => image.decode());
@@ -156,20 +175,19 @@ const server = http.createServer((req,res) => {
       await page.setViewportSize({width,height:900});
       for (const hash of ['search','herbs','sources','community','home']) {
         await go('#'+hash);
-        if(hash !== 'home') await page.locator('.botanical-banner img').evaluate(image => image.decode());
+        if(!['home','search'].includes(hash)) await page.locator('.botanical-banner img').evaluate(image => image.decode());
         await page.screenshot({path:path.join(require('os').tmpdir(),'mulika-'+hash+'-'+width+'.png')});
       }
     }
     await go('#search');
     await page.locator('#ask-input').fill('Sleep');
-    await page.getByRole('button',{name:'Find sources',exact:true}).click();
+    await page.locator('.search-composer').getByRole('button',{name:'Discover',exact:true}).click();
     await page.locator('.formulation-card').first().waitFor();
-    await page.locator('.formulation-card').first().getByRole('button',{name:/Buy herbs and/}).click();
-    const mobileOrder = page.getByRole('dialog',{name:'Buy herbs and/or concoction',exact:true});
-    await mobileOrder.getByRole('button',{name:'Order',exact:true}).click();
-    assert(await mobileOrder.evaluate(el => el.scrollWidth <= el.clientWidth + 1));
-    await page.screenshot({path:path.join(require('os').tmpdir(),'mulika-order-mobile.png')});
-    await page.keyboard.press('Escape');
+    await page.locator('.formulation-card').first().getByRole('button',{name:'Consult a Physician',exact:true}).click();
+    await page.getByRole('heading',{name:'Consult a Physician',exact:true}).waitFor();
+    assert(!(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)));
+    await page.screenshot({path:path.join(require('os').tmpdir(),'mulika-consult-mobile.png')});
+    await page.locator('.experience-back').click();
     await page.getByRole('navigation',{name:'Mobile primary'}).getByRole('button',{name:'Saved',exact:true}).click();
     await page.locator('[data-scene="saved"] img').evaluate(image => image.decode());
     await page.getByRole('button',{name:'Close panel',exact:true}).click();
@@ -188,6 +206,6 @@ const server = http.createServer((req,res) => {
     assert.equal(await page.locator('.guide-answer h2').textContent(),'Search the collection.');
     assert.equal(await page.locator('.landscape-object').first().evaluate(el=>getComputedStyle(el).opacity),'1');
     assert.deepEqual(errors,[]);
-    console.log('PASS: visual index, A–Z language/letter filters, dossier anchors, Back, keyboard destination finder, family filtering, comparison, folio route, static search, 72 responsive checks with loaded imagery, dark mode, no page errors.');
+    console.log('PASS: visual index, A–Z language/letter filters, dossier anchors, Back, keyboard destination finder, family filtering, comparison, folio route, static search, 90 responsive checks with loaded imagery, dark mode, no page errors.');
   } finally { await browser.close(); server.close(); }
 })().catch(error=>{console.error(error);server.close();process.exitCode=1;});

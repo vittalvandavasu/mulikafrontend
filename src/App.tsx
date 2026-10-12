@@ -12,6 +12,9 @@ import {
   CodexNavigationTarget,
   SavedRemedyItem
 } from './types';
+import { ExperienceContext } from './components/ContextActions';
+import { ExperiencePage } from './components/ExperiencePage';
+import { Journey, JourneyContext, DiscoveryEntity } from './lib/experience';
 import { DiscoveryPaths } from './components/DiscoveryPaths';
 import { BotanicalHome } from './components/BotanicalHome';
 import { BotanicalBanner } from './components/BotanicalBanner';
@@ -44,7 +47,9 @@ export function App() {
   useEffect(() => {
     if (activeTab !== 'herbs') setSelectedHerbId(undefined);
   }, [activeTab]);
+  const [journeyContext, setJourneyContext] = useState<JourneyContext | null>(null);
   const [query, setQuery] = useState<string>('');
+  const [submittedQuery, setSubmittedQuery] = useState('');
   const [bookFilter, setBookFilter] = useState<string>('ALL');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
 
@@ -125,7 +130,7 @@ export function App() {
           initialCompareHerb: compareHerb
         });
         setActiveTab('codex');
-      } else if (['home', 'index', 'az', 'taxonomy', 'search', 'herbs', 'ailments', 'glossary', 'community', 'sources'].includes(tab)) {
+      } else if (['home', 'make', 'buy', 'consult', 'index', 'az', 'taxonomy', 'search', 'herbs', 'ailments', 'glossary', 'community', 'sources'].includes(tab)) {
         setActiveTab(tab);
       }
     } catch (e) {
@@ -207,6 +212,8 @@ export function App() {
 
   const handleSearch = async (searchQuery: string) => {
     if (!searchQuery.trim()) return;
+    setJourneyContext(null);
+    setSubmittedQuery(searchQuery.trim());
     setLoading(true);
     setActiveTab('search');
     updateUrlHash('search');
@@ -364,9 +371,14 @@ export function App() {
       setNotes(prev => prev.map(n => n.id === noteId ? { ...n, upvotes: result.upvotes } : n));
     } catch { setActionError('Your vote could not be saved. Please try again.'); }
   };
+  const openJourney = (journey: Journey, entity: DiscoveryEntity, ingredient?: string) => {
+    setJourneyContext({entity, query: searchResult ? submittedQuery : query, demographics: {...submittedContext}, returnTab: activeTab, ingredient});
+    handleTabChange(journey);
+  };
+  const currentJourneyContext: JourneyContext = journeyContext || {entity:{kind:'query',id:query,label:query || 'Start with your question',recordIds:(searchResult?.manuscript_matches || searchResult?.topManuscriptMatches || []).map(entry=>entry.id)},query,demographics:submittedContext,returnTab:'search'};
   const herbOptions = herbs.map(h => h.name);
   return (
-    <div className="min-h-screen bg-[var(--canvas)] text-[var(--ink)] flex flex-col font-sans selection:bg-[#D4AF37] selection:text-[#0B130E]">
+    <ExperienceContext.Provider value={{open:openJourney}}><div className="min-h-screen bg-[var(--canvas)] text-[var(--ink)] flex flex-col font-sans selection:bg-[#D4AF37] selection:text-[#0B130E]">
       <Navbar
         activeTab={activeTab === 'codex' && codexTarget?.initialViewMode === 'compare' ? 'compare' : activeTab}
         setActiveTab={handleTabChange}
@@ -379,9 +391,10 @@ export function App() {
       />
 
       <main id="main-content" tabIndex={-1} className="flex-1 pb-24 lg:pb-16">
-        {activeTab !== 'home' && <BotanicalBanner page={activeTab === 'codex' && codexTarget?.initialViewMode === 'compare' ? 'compare' : activeTab} compact={activeTab === 'search' || activeTab === 'codex'}/>}
+        {!['home','search','make','buy','consult'].includes(activeTab) && <BotanicalBanner page={activeTab === 'codex' && codexTarget?.initialViewMode === 'compare' ? 'compare' : activeTab} compact={activeTab === 'search' || activeTab === 'codex'}/>}
         {actionError && <div role="alert" className="error-state">{actionError}<button onClick={() => setActionError(null)}>Dismiss</button></div>}
         {activeTab === 'home' && <BotanicalHome navigate={handleTabChange} onSearch={handleSearch} herbs={herbs} onHerb={id => { setSelectedHerbId(id); handleTabChange('herbs'); }} onCustomize={() => { setSearchContext(context => ({...context, enabled:true})); handleTabChange('search'); }}/>}
+        {['make','buy','consult'].includes(activeTab) && <ExperiencePage key={activeTab+currentJourneyContext.entity.id} journey={activeTab as Journey} context={currentJourneyContext} entries={entries} herbs={herbs} back={() => handleTabChange(currentJourneyContext.returnTab)} source={entry => handleNavigateToSource(entry.source_id,entry.page,entry.id)} herb={id => {setSelectedHerbId(id);handleTabChange('herbs');}} move={(journey,ingredient) => {setJourneyContext({...currentJourneyContext,ingredient});handleTabChange(journey);}}/>}
         {activeTab === 'index' && <CodexIndex navigate={handleTabChange} entriesCount={entries.length} herbsCount={herbs.length}/>}
         {activeTab === 'search' && (
           <div className="space-y-6">
@@ -409,6 +422,10 @@ export function App() {
               {searchResult && <SearchContextSummary value={submittedContext}/>}
               <SearchResultsView
                 context={submittedContext}
+                key={submittedQuery}
+                query={submittedQuery}
+                herbs={herbs}
+                entries={entries}
                 searchResult={searchResult}
                 loading={loading}
                 onSelectHerb={(herbName) => {
@@ -586,7 +603,7 @@ export function App() {
         isOpen={isArchitectureModalOpen}
         onClose={() => setIsArchitectureModalOpen(false)}
       />
-    </div>
+    </div></ExperienceContext.Provider>
   );
 }
 

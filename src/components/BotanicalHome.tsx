@@ -38,7 +38,7 @@ export function PreparationHero({ onSearch, videoSrc }: { onSearch: (query: stri
       <form className="home-search" role="search" onSubmit={event => { event.preventDefault(); if(query.trim()) onSearch(query.trim()); }}>
         <label className="sr-only" htmlFor="home-search-input">Search herbs, ailments and remedies</label>
         <Search size={22} aria-hidden="true"/>
-        <input id="home-search-input" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Find herbs, ailments and more…" required/>
+        <input id="home-search-input" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search herbs, ailments, formulations…" required/>
         <button type="submit" aria-label="Search Mulika"><span>Search</span><ArrowUpRight size={22}/></button>
       </form>
       <div className="hero-suggestions"><span>Try</span>{['Digestion','Sleep','Skin','Tulsi'].map(value => <button key={value} onClick={() => onSearch(value)}>{value}</button>)}</div>
@@ -61,11 +61,12 @@ export function BotanicalHome({ navigate, onSearch, herbs, onHerb, onCustomize }
     .map(name => herbs.find(herb => herb.botanical.includes(name))).filter((herb): herb is HerbMonograph => !!herb);
   return <div className="botanical-home">
     <PreparationHero onSearch={onSearch}/>
+    <div className="home-consult-strip"><p>Want personal guidance?</p><button className="home-link" onClick={() => navigate('consult')}>Consult a Physician <ArrowUpRight size={20}/></button></div>
     <section className="home-section home-paths" aria-label="Choose your path">
       {[
-        { title:'Customize for me', text:'Start with what’s on your mind. Add optional age and gender context to your search.', action:'Start customizing', run:onCustomize, tone:'sage' },
-        { title:'Make your own', text:'Look inside traditional preparations, their ingredients, and the original texts.', action:'Explore preparations', run:() => navigate('sources'), tone:'earth' },
-        { title:'Buy with us', text:'A future home for thoughtfully selected herbs. For now, get to know the collection.', action:'Preview the collection', run:() => document.getElementById('home-collections')?.scrollIntoView({behavior:'instant'}), tone:'olive' }
+        { title:'Discover', text:'Find herbs, traditional preparations, and their source stories.', action:'Start discovering', run:() => navigate('search'), tone:'sage' },
+        { title:'Make Yourself', text:'Look inside traditional preparations, their ingredients, and the original texts.', action:'Explore preparations', run:() => navigate('make'), tone:'earth' },
+        { title:'Buy with us', text:'A future home for thoughtfully selected herbs. For now, get to know the collection.', action:'Check availability', run:() => navigate('buy'), tone:'olive' }
       ].map((path,index) => <Reveal className={'home-path-card '+path.tone} key={path.title}><div className={'path-art crop-'+index} aria-hidden="true"/><div className="path-copy"><span className="home-eyebrow">0{index+1} / {index === 2 ? 'SHOP COMING LATER' : 'YOUR WAY IN'}</span><h2>{path.title}</h2><p>{path.text}</p><button className="home-link" onClick={path.run}>{path.action}<ArrowUpRight size={20}/></button></div></Reveal>)}
     </section>
     <section className="home-section" aria-labelledby="needs-title">
