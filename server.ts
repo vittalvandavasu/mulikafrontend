@@ -1,3 +1,4 @@
+import { scoreEntryMatch, searchTerms } from './src/lib/searchUnderstanding.ts';
 import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
@@ -29,14 +30,6 @@ function generateDeterministicSynthesis(
   topMatches: any[]
 ) {
   const topEntry = topMatches[0];
-  const matchedHerb = HERB_MONOGRAPHS.find(h => 
-    topEntry && (
-      h.name.toLowerCase().includes(topEntry.herb.toLowerCase()) || 
-      topEntry.herb.toLowerCase().includes(h.name.toLowerCase()) ||
-      (topEntry.telugu && h.telugu.includes(topEntry.telugu.split(' ')[0]))
-    )
-  );
-
   const matchedAilment = AILMENT_DIRECTORIES.find(a =>
     topEntry && (
       a.id.toLowerCase().includes(topEntry.ailment.toLowerCase()) ||
@@ -51,17 +44,9 @@ function generateDeterministicSynthesis(
 
   const manuscriptSummary = `The classical Telugu treatises document page-cited formulations for ${topEntry?.ailment || 'this condition'}:\n${citations}`;
 
-  const modernCrossref = matchedHerb?.modern_evidence || 
-    `Pharmacognostic literature on ${topEntry?.herb || 'the indexed botanicals'} identifies active polyphenols and bioflavonoids supporting traditional therapeutic indications.`;
-
-  const pathyaList = matchedAilment?.pathya_apathya?.pathya || matchedAilment?.pathya_apathya?.recommended || [];
-  const pathyaGuidance = (pathyaList.length > 0)
-    ? pathyaList.slice(0, 3)
-    : [
-        'Consume freshly prepared, easily digestible warm foods (Laghu Ahara) with buttermilk',
-        'Maintain adequate hydration with boiled coriander or cumin water',
-        'Avoid excessively pungent, sour, and deep-fried foods (Katu/Amla Apathyam)'
-      ];
+  // No general scientific or dietary claims without a claim-specific source.
+  const modernCrossref = '';
+  const pathyaGuidance: string[] = [];
 
   const safetyNote = (matchedAilment?.red_flags && matchedAilment.red_flags.length > 0)
     ? `Emergency red-flags requiring conventional medical evaluation: ${matchedAilment.red_flags.slice(0, 2).join('; ')}.`
@@ -129,43 +114,9 @@ function getGeminiClient(): GoogleGenAI | null {
   });
 }
 
-function scoreEntryMatch(entry: typeof MANUSCRIPT_ENTRIES[0], queryTerms: string[]): number {
-  let score = 0;
-  const searchableText = `${entry.herb} ${entry.herb_full || ''} ${entry.telugu} ${entry.ailment} ${entry.ailment_telugu || ''} ${entry.remedy} ${entry.botanical || ''} ${entry.category} ${entry.source_title}`.toLowerCase();
-
-  for (const term of queryTerms) {
-    if (term.length < 2) continue;
-    if (searchableText.includes(term)) {
-      score += 5;
-      if (entry.herb.toLowerCase().includes(term) || (entry.telugu && entry.telugu.includes(term))) score += 10;
-      if (entry.ailment.toLowerCase().includes(term) || (entry.ailment_telugu && entry.ailment_telugu.includes(term))) score += 10;
-    }
-  }
-
-  // Symptom semantic expansion heuristics
-  const qStr = queryTerms.join(' ');
-  if ((qStr.includes('pile') || qStr.includes('hemorrhoid') || qStr.includes('moola') || qStr.includes('arshas') || qStr.includes('fissure') || qStr.includes('rectal')) && (entry.ailment.toLowerCase().includes('pile') || entry.ailment.toLowerCase().includes('moola') || entry.category === 'Digestive & Piles')) {
-    score += 15;
-  }
-  if ((qStr.includes('headache') || qStr.includes('migraine') || qStr.includes('talanopi') || qStr.includes('shira') || qStr.includes('temple') || qStr.includes('head')) && (entry.ailment.toLowerCase().includes('headache') || entry.ailment.toLowerCase().includes('talanopi') || entry.category === 'Headache & Neuro')) {
-    score += 15;
-  }
-  if ((qStr.includes('fever') || qStr.includes('jwara') || qStr.includes('chills') || qStr.includes('malaria') || qStr.includes('temperature') || qStr.includes('flu')) && (entry.ailment.toLowerCase().includes('fever') || entry.ailment.toLowerCase().includes('jwar') || entry.category === 'Fevers & Immunity')) {
-    score += 15;
-  }
-  if ((qStr.includes('cold') || qStr.includes('cough') || qStr.includes('phlegm') || qStr.includes('asthma') || qStr.includes('breath') || qStr.includes('jalubu') || qStr.includes('ubhasam')) && (entry.category === 'Respiratory & Cough' || entry.ailment.toLowerCase().includes('cough') || entry.ailment.toLowerCase().includes('cold') || entry.ailment.toLowerCase().includes('asthma'))) {
-    score += 15;
-  }
-  if ((qStr.includes('joint') || qStr.includes('knee') || qStr.includes('arthritis') || qStr.includes('back') || qStr.includes('sciatica') || qStr.includes('keellu')) && (entry.category === 'Joints & Pain' || entry.ailment.toLowerCase().includes('joint') || entry.ailment.toLowerCase().includes('pain'))) {
-    score += 15;
-  }
-
-  return score;
-}
-
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   app.use(express.json());
 
@@ -326,7 +277,7 @@ async function startServer() {
   // --- 7-STAGE DETERMINISTIC SEARCH & CITATION-GROUNDED SYNTHESIS PIPELINE ---
   app.post('/api/search', async (req, res) => {
     const { query, bookFilter, categoryFilter } = req.body;
-    if (!query || typeof query !== 'string') {
+    if (!query || typeof query !== 'string' || !query.trim() || query.length > 1000) {
       return res.status(400).json({ error: 'Query string is required.' });
     }
 
@@ -336,7 +287,7 @@ async function startServer() {
       return res.json(searchCache.get(cacheKey));
     }
 
-    const queryTerms = trimmedQuery.toLowerCase().split(/\s+/).filter(Boolean);
+    const queryTerms = searchTerms(trimmedQuery);
 
     // Stage 1: Filter and score local manuscript matches
     let rawMatches = MANUSCRIPT_ENTRIES
@@ -387,10 +338,7 @@ async function startServer() {
     let modernCrossref = '';
     let safetyNote = 'Historical Ayurvedic formulation for scholarly reference. Does not replace professional clinical diagnosis. Consult a qualified BAMS physician.';
     let pathyaGuidance: string[] = [];
-    const modernSources = [
-      { title: 'Ayurvedic Pharmacopoeia of India (API) - CCRAS / Ministry of AYUSH', journal: 'Official Pharmacopeial Monograph', year: 2020, url: 'https://ayushportal.nic.in' },
-      { title: 'Traditional Knowledge Digital Library (TKDL)', journal: 'CSIR / AYUSH Knowledge Base', year: 2022, url: 'https://www.tkdl.res.in' }
-    ];
+    const modernSources: Array<{title:string;url:string}> = [];
 
     const isCooldownActive = Date.now() < geminiRateLimitCooldownUntil;
 
@@ -416,8 +364,8 @@ ${JSON.stringify(topManuscriptMatches.map(m => ({
 Strict Instructions:
 1. "query_understood_as": Clarify user query in 1 objective sentence.
 2. "manuscript_summary": Summarize the traditional formulation(s) directly attested in the retrieved text. State clearly: "The source records traditional use of [Herb] for [Ailment] (Book: [Title], Page [Number])." NEVER claim it "cures" the disease.
-3. "modern_crossref": State known botanical constituents for the retrieved plants (e.g. bioflavonoids, tannins) without making clinical efficacy guarantees.
-4. "pathya_guidance": Array of 2-3 traditional dietary recommendations mentioned in classical texts (e.g. buttermilk, fiber, light diet).
+3. "modern_crossref": Empty string. No external scientific sources are supplied.
+4. "pathya_guidance": Empty array. No separately verified dietary records are supplied.
 5. "safety_note": Critical contraindications and medical red-flags requiring emergency conventional evaluation.
 
 Respond in pure JSON with keys: query_understood_as, manuscript_summary, modern_crossref, pathya_guidance (array of strings), safety_note.`;
@@ -441,9 +389,9 @@ Respond in pure JSON with keys: query_understood_as, manuscript_summary, modern_
             if (postValidation.passed) {
               if (parsed.query_understood_as) queryUnderstoodAs = parsed.query_understood_as;
               manuscriptSummary = rawSummary;
-              if (parsed.modern_crossref) modernCrossref = parsed.modern_crossref;
-              if (parsed.safety_note) safetyNote = parsed.safety_note;
-              if (Array.isArray(parsed.pathya_guidance)) pathyaGuidance = parsed.pathya_guidance;
+              // External science is retrieved independently, never inferred from a manuscript match.
+              // Keep the deterministic safety notice.
+              // Dietary advice requires its own claim-level provenance.
               break;
             } else {
               console.info('Post-LLM Citation Gatekeeper requested grounded fallback.');

@@ -1,0 +1,40 @@
+import assert from 'node:assert/strict';
+import { searchTerms, resolveFollowup, researchTopic, matchingHerbs } from '../lib/searchUnderstanding';
+import { searchBundledCorpus } from '../services/api';
+import { parseResearch, researchQuery, searchResearch } from '../services/research';
+import { ThreeStateStatus } from '../types';
+
+assert.deepEqual(searchTerms('What can you tell me about ginger?'),['ginger']);
+assert.equal(searchBundledCorpus('What can you tell me about quantum teleportation?', 'ALL','ALL').status,ThreeStateStatus.UNKNOWN);
+assert.equal(searchBundledCorpus('I have quantum teleportation', 'ALL','ALL').status,ThreeStateStatus.UNKNOWN);
+assert.equal(researchTopic('Ginger for nausea'),'Zingiber officinale nausea');
+assert.equal(searchBundledCorpus('What is this?', 'ALL','ALL').status,ThreeStateStatus.UNKNOWN);
+const ginger = searchBundledCorpus('What can you tell me about ginger?', 'ALL','ALL');
+assert.ok(ginger.manuscript_matches?.some(entry=>entry.botanical?.includes('Zingiber')));
+assert.deepEqual(ginger.manuscript_matches?.map(entry=>entry.id),searchBundledCorpus('Ginger','ALL','ALL').manuscript_matches?.map(entry=>entry.id));
+assert.ok(matchingHerbs('Tell me about holy basil').length>0);
+assert.equal(resolveFollowup('What about safety?','ginger'),'ginger What about safety?');
+assert.equal(resolveFollowup('Is it safe?','ginger'),'ginger Is it safe?');
+assert.equal(resolveFollowup('Tell me about neem','ginger'),'Tell me about neem');
+assert.ok(researchTopic('Ginger for nausea').toLowerCase().includes('nausea'));
+const book = ginger.manuscript_matches![0].source_id;
+assert.ok(searchBundledCorpus('Ginger',book,'ALL').manuscript_matches?.every(entry=>entry.source_id===book));
+assert.equal(searchBundledCorpus('Ginger','nonexistent','ALL').status,ThreeStateStatus.UNKNOWN);
+assert.equal(researchQuery('ginger OR *'),'("ginger" AND "OR") AND SRC:MED');
+const fixture={hitCount:3,resultList:{result:[{id:'123',source:'MED',title:'&lt;b&gt;Example study&lt;/b&gt;',abstractText:'<script>untrusted()</script> Plain text',pubYear:'2025'},{id:'123',source:'MED',title:'Duplicate'},{id:'javascript:bad',source:'MED',title:'Invalid'}]}};
+const parsed = parseResearch(fixture,'ginger');
+assert.equal(parsed.items.length,1);assert.equal(parsed.items[0].title,'Example study');
+assert.equal(parsed.items[0].url,'https://europepmc.org/article/MED/123');
+assert.ok(!parsed.items[0].excerpt.includes('<script>'));
+assert.throws(()=>parseResearch({error:'unavailable'},'ginger'));
+const originalFetch=globalThis.fetch;
+try {
+  globalThis.fetch=async (url,options)=>{assert.ok(String(url).startsWith('https://www.ebi.ac.uk/'));assert.equal(options?.credentials,'omit');return new Response(JSON.stringify(fixture),{status:200});};
+  assert.equal((await searchResearch('ginger')).items.length,1);
+  globalThis.fetch=async ()=>new Response('Unavailable',{status:503});
+  await assert.rejects(()=>searchResearch('ginger'));
+  const controller=new AbortController();controller.abort();
+  globalThis.fetch=async (_url,options)=>{assert.ok(options?.signal?.aborted);throw new DOMException('Aborted','AbortError');};
+  await assert.rejects(()=>searchResearch('ginger',controller.signal));
+} finally {globalThis.fetch=originalFetch;}
+console.log('PASS: conversational retrieval, aliases, follow-up context, filters, unknown queries, research parsing, failures and cancellation');

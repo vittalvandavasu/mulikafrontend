@@ -9,7 +9,7 @@
     "start": "node dist/server.cjs",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "test": "tsx src/tests/safetyAndProvenance.test.ts && tsx src/tests/goldCorpus.test.ts && tsx src/tests/crossSourceComparison.test.ts && tsx src/tests/codexDeepLinking.test.ts && tsx src/tests/frontendRendering.test.tsx"
+    "test": "tsx src/tests/safetyAndProvenance.test.ts && tsx src/tests/goldCorpus.test.ts && tsx src/tests/crossSourceComparison.test.ts && tsx src/tests/codexDeepLinking.test.ts && tsx src/tests/frontendRendering.test.tsx && tsx src/tests/searchExperience.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

@@ -168,6 +168,48 @@ const server = http.createServer((req,res) => {
     assert.equal(await page.locator('.context-summary').count(),0);
     await page.reload();
     assert.equal(await page.getByLabel('Age group',{exact:true}).inputValue(),'');
+    // Conversation continuity, honest no-match state, and external research boundaries.
+    await page.locator('#ask-input').fill('What can you tell me about ginger?');
+    await page.locator('.search-composer').getByRole('button',{name:'Discover',exact:true}).click();
+    await page.locator('.conversation-answer').waitFor();
+    assert(await page.locator('.formulation-card').count()>0);
+    await page.getByRole('button',{name:'What about safety?',exact:true}).click();
+    await page.getByRole('heading',{name:'Let’s separate the record from personal safety.',exact:true}).waitFor();
+    assert((await page.locator('.conversation-topic').textContent()).includes('ginger'));
+    await page.locator('.formulation-card').first().getByRole('button',{name:'Consult a Physician',exact:true}).click();
+    assert((await page.getByLabel('Your concern',{exact:true}).inputValue()).includes('ginger'));
+    await page.locator('.experience-back').click();
+    await page.getByRole('navigation',{name:'Questions in this session'}).getByRole('button',{name:'What can you tell me about ginger?',exact:true}).click();
+    assert.equal(await page.locator('#ask-input').inputValue(),'What can you tell me about ginger?');
+    await page.getByRole('button',{name:'Explore published research',exact:true}).click();
+    assert(await page.locator('#research-topic').evaluate(el=>el===document.activeElement));
+    let externalRequests=0;
+    await page.route('https://www.ebi.ac.uk/europepmc/webservices/rest/search?**',async route=>{
+      externalRequests++;
+      const url=new URL(route.request().url());
+      assert(!url.searchParams.has('age') && !url.searchParams.has('gender'));
+      assert.equal(route.request().postData(),null);
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({hitCount:1,resultList:{result:[{id:'123456',source:'MED',title:'Fixture research record',pubYear:'2025',authorString:'Example author',abstractText:'Fixture abstract supplied by the research service.'}]}})});
+    });
+    assert.equal(externalRequests,0);
+    await page.getByRole('button',{name:'Search published research',exact:true}).click();
+    await page.getByRole('link',{name:'Fixture research record'}).waitFor();
+    assert.equal(externalRequests,1);
+    assert.equal(await page.getByRole('link',{name:'Fixture research record'}).getAttribute('href'),'https://europepmc.org/article/MED/123456');
+    await page.unroute('https://www.ebi.ac.uk/europepmc/webservices/rest/search?**');
+    await page.route('https://www.ebi.ac.uk/europepmc/webservices/rest/search?**',route=>route.fulfill({status:503,body:'Unavailable'}));
+    await page.getByRole('button',{name:'Search published research',exact:true}).click();
+    await page.getByRole('button',{name:'Try research again',exact:true}).waitFor();
+    assert(await page.locator('.formulation-card').count()>0);
+    await page.unroute('https://www.ebi.ac.uk/europepmc/webservices/rest/search?**');
+    await page.locator('#ask-input').fill('What can you tell me about quantum teleportation?');
+    await page.locator('.search-composer').getByRole('button',{name:'Discover',exact:true}).click();
+    await page.getByRole('heading',{name:'Let’s look a little wider.',exact:true}).waitFor();
+    assert.equal(await page.locator('.formulation-card').count(),0);
+    assert.equal(await page.locator('.research-panel').count(),1);
+    await page.setViewportSize({width:390,height:900});
+    assert(!(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)));
+    await page.screenshot({animations:'disabled',path:path.join(require('os').tmpdir(),'mulika-conversation-mobile.png')});
     for(const width of [360,390,430,768,1024,1440]) {
       await page.setViewportSize({width,height:900});
       for(const hash of ['#home','#index','#herbs','#az','#taxonomy','#search','#ailments','#sources','#codex','#compare','#glossary','#community','#make','#buy','#consult']) {

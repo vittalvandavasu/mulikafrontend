@@ -1,3 +1,4 @@
+import { resolveFollowup, searchTerms } from './lib/searchUnderstanding';
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { 
   AyurvedicEntry, 
@@ -50,6 +51,8 @@ export function App() {
   const [journeyContext, setJourneyContext] = useState<JourneyContext | null>(null);
   const [query, setQuery] = useState<string>('');
   const [submittedQuery, setSubmittedQuery] = useState('');
+  const [submittedTopic,setSubmittedTopic] = useState('');
+  const [searchTurns,setSearchTurns] = useState<Array<{question:string;topic:string;result:SearchResult;context:AilmentContext;book:string;category:string}>>([]);
   const [bookFilter, setBookFilter] = useState<string>('ALL');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
 
@@ -210,18 +213,22 @@ export function App() {
 
   }, []);
 
-  const handleSearch = async (searchQuery: string) => {
+  const handleSearch = async (searchQuery: string, followup = false) => {
     if (!searchQuery.trim()) return;
+    const retrievalQuery = followup ? resolveFollowup(searchQuery,submittedTopic) : searchQuery.trim();
+    const topic = searchTerms(retrievalQuery).join(' ') || retrievalQuery;
+    setSubmittedTopic(topic);
     setJourneyContext(null);
     setSubmittedQuery(searchQuery.trim());
     setLoading(true);
     setActiveTab('search');
     updateUrlHash('search');
 
-    // Update recent searches
+    // Store the resolved topic for follow-ups so a recent search works on its own.
+    const recentQuery = followup ? retrievalQuery : searchQuery.trim();
     setRecentSearches(prev => {
-      const filtered = prev.filter(q => q.toLowerCase() !== searchQuery.trim().toLowerCase());
-      const updated = [searchQuery.trim(), ...filtered].slice(0, 6);
+      const filtered = prev.filter(q => q.toLowerCase() !== recentQuery.toLowerCase());
+      const updated = [recentQuery, ...filtered].slice(0, 6);
       try {
         localStorage.setItem('mulika_recent_searches', JSON.stringify(updated));
       } catch {}
@@ -236,8 +243,11 @@ export function App() {
     setSubmittedContext({ ...searchContext });
     setQuery(searchQuery);
     try {
-      const result = await searchLibrary(searchQuery, bookFilter, categoryFilter, controller.signal);
-      if (!controller.signal.aborted) setSearchResult(result);
+      const result = await searchLibrary(retrievalQuery, bookFilter, categoryFilter, controller.signal);
+      if (!controller.signal.aborted) {
+        setSearchResult(result);
+        setSearchTurns(turns => [...turns.slice(-5),{question:searchQuery.trim(),topic,result,context:{...searchContext},book:bookFilter,category:categoryFilter}]);
+      }
     } catch (err) {
       if (!controller.signal.aborted) setSearchError('We couldn’t reach the Mulika library. Please try again.');
     } finally {
@@ -371,11 +381,12 @@ export function App() {
       setNotes(prev => prev.map(n => n.id === noteId ? { ...n, upvotes: result.upvotes } : n));
     } catch { setActionError('Your vote could not be saved. Please try again.'); }
   };
+  const selectedQuery = searchResult ? (submittedTopic && searchTerms(submittedQuery).join(' ') !== submittedTopic ? `${submittedQuery} — ${submittedTopic}` : submittedQuery) : query;
   const openJourney = (journey: Journey, entity: DiscoveryEntity, ingredient?: string) => {
-    setJourneyContext({entity, query: searchResult ? submittedQuery : query, demographics: {...submittedContext}, returnTab: activeTab, ingredient});
+    setJourneyContext({entity, query: activeTab === 'search' ? selectedQuery : entity.label, demographics: {...submittedContext}, returnTab: activeTab, ingredient});
     handleTabChange(journey);
   };
-  const currentJourneyContext: JourneyContext = journeyContext || {entity:{kind:'query',id:query,label:query || 'Start with your question',recordIds:(searchResult?.manuscript_matches || searchResult?.topManuscriptMatches || []).map(entry=>entry.id)},query,demographics:submittedContext,returnTab:'search'};
+  const currentJourneyContext: JourneyContext = journeyContext || {entity:{kind:'query',id:selectedQuery,label:selectedQuery || 'Start with your question',recordIds:(searchResult?.manuscript_matches || searchResult?.topManuscriptMatches || []).map(entry=>entry.id)},query:selectedQuery,demographics:submittedContext,returnTab:'search'};
   const herbOptions = herbs.map(h => h.name);
   return (
     <ExperienceContext.Provider value={{open:openJourney}}><div className="min-h-screen bg-[var(--canvas)] text-[var(--ink)] flex flex-col font-sans selection:bg-[#D4AF37] selection:text-[#0B130E]">
@@ -419,11 +430,14 @@ export function App() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               {searchError && <div className="error-state" role="alert"><h2>We couldn’t reach the Mulika library.</h2><p>No answer has been generated. {searchError}</p><button className="primary-button" onClick={() => handleSearch(query)}>Retry search</button></div>}
               {!searchResult && !loading && !searchError && <DiscoveryPaths navigate={handleTabChange} search={handleSearch} savedCount={savedRemedies.length} openSaved={() => setIsSavedDrawerOpen(true)}/>}
+              {searchTurns.length>1 && <nav className="conversation-history" aria-label="Questions in this session"><span>Your questions</span>{searchTurns.map((turn,index)=><button key={index} aria-current={turn.question===submittedQuery && turn.topic===submittedTopic ? 'step' : undefined} onClick={()=>{searchController.current?.abort();setLoading(false);setSearchError(null);setJourneyContext(null);setQuery(turn.question);setSubmittedQuery(turn.question);setSubmittedTopic(turn.topic);setSearchResult(turn.result);setSubmittedContext(turn.context);setSearchContext(turn.context);setBookFilter(turn.book);setCategoryFilter(turn.category);}}>{turn.question}</button>)}</nav>}
               {searchResult && <SearchContextSummary value={submittedContext}/>}
               <SearchResultsView
                 context={submittedContext}
                 key={submittedQuery}
                 query={submittedQuery}
+                topic={submittedTopic}
+                onFollowup={question=>void handleSearch(question,true)}
                 herbs={herbs}
                 entries={entries}
                 searchResult={searchResult}

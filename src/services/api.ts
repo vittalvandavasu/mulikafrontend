@@ -1,3 +1,4 @@
+import { scoreEntryMatch, searchTerms } from '../lib/searchUnderstanding';
 import { SearchResult, ThreeStateStatus } from '../types';
 import { MANUSCRIPT_ENTRIES } from '../data/manuscripts';
 import { adaptToProvenanceRecord } from '../lib/provenanceAdapter';
@@ -9,26 +10,8 @@ export async function request<T>(url: string, init?: RequestInit): Promise<T> {
   return response.json();
 }
 
-function scoreEntryMatch(entry: typeof MANUSCRIPT_ENTRIES[number], queryTerms: string[]): number {
-  let score = 0;
-  const searchableText = `${entry.herb} ${entry.herb_full || ''} ${entry.telugu} ${entry.ailment} ${entry.ailment_telugu || ''} ${entry.remedy} ${entry.botanical || ''} ${entry.category} ${entry.source_title}`.toLowerCase();
-  for (const term of queryTerms) {
-    if (term.length < 2 || !searchableText.includes(term)) continue;
-    score += 5;
-    if (entry.herb.toLowerCase().includes(term) || entry.telugu?.includes(term)) score += 10;
-    if (entry.ailment.toLowerCase().includes(term) || entry.ailment_telugu?.includes(term)) score += 10;
-  }
-  const query = queryTerms.join(' ');
-  if ((query.includes('pile') || query.includes('hemorrhoid') || query.includes('moola') || query.includes('arshas') || query.includes('fissure') || query.includes('rectal')) && (entry.ailment.toLowerCase().includes('pile') || entry.ailment.toLowerCase().includes('moola') || entry.category === 'Digestive & Piles')) score += 15;
-  if ((query.includes('headache') || query.includes('migraine') || query.includes('talanopi') || query.includes('shira') || query.includes('temple') || query.includes('head')) && (entry.ailment.toLowerCase().includes('headache') || entry.ailment.toLowerCase().includes('talanopi') || entry.category === 'Headache & Neuro')) score += 15;
-  if ((query.includes('fever') || query.includes('jwara') || query.includes('chills') || query.includes('malaria') || query.includes('temperature') || query.includes('flu')) && (entry.ailment.toLowerCase().includes('fever') || entry.ailment.toLowerCase().includes('jwar') || entry.category === 'Fevers & Immunity')) score += 15;
-  if ((query.includes('cold') || query.includes('cough') || query.includes('phlegm') || query.includes('asthma') || query.includes('breath') || query.includes('jalubu') || query.includes('ubhasam')) && (entry.category === 'Respiratory & Cough' || entry.ailment.toLowerCase().includes('cough') || entry.ailment.toLowerCase().includes('cold') || entry.ailment.toLowerCase().includes('asthma'))) score += 15;
-  if ((query.includes('joint') || query.includes('knee') || query.includes('arthritis') || query.includes('back') || query.includes('sciatica') || query.includes('keellu')) && (entry.category === 'Joints & Pain' || entry.ailment.toLowerCase().includes('joint') || entry.ailment.toLowerCase().includes('pain'))) score += 15;
-  return score;
-}
-
-function searchBundledCorpus(query: string, bookFilter: string, categoryFilter: string): SearchResult {
-  const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+export function searchBundledCorpus(query: string, bookFilter: string, categoryFilter: string): SearchResult {
+  const terms = searchTerms(query);
   let matches = MANUSCRIPT_ENTRIES.map(entry => ({ entry, score: scoreEntryMatch(entry, terms) })).filter(item => item.score > 0).sort((a, b) => b.score - a.score).map(item => item.entry);
   if (bookFilter && bookFilter !== 'ALL') matches = matches.filter(entry => entry.source_id === bookFilter);
   if (categoryFilter && categoryFilter !== 'ALL') matches = matches.filter(entry => entry.category === categoryFilter);
@@ -40,10 +23,15 @@ function searchBundledCorpus(query: string, bookFilter: string, categoryFilter: 
 }
 
 export async function searchLibrary(query: string, bookFilter: string, categoryFilter: string, signal?: AbortSignal): Promise<SearchResult> {
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  signal?.addEventListener('abort',abort,{once:true});
+  if (signal?.aborted) controller.abort();
+  const timeout = setTimeout(abort,12000);
   try {
-    return await request<SearchResult>('/api/search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query, bookFilter, categoryFilter }), signal });
+    return await request<SearchResult>('/api/search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query, bookFilter, categoryFilter }), signal:controller.signal });
   } catch (error) {
     if (signal?.aborted) throw error;
     return searchBundledCorpus(query, bookFilter, categoryFilter);
-  }
+  } finally { clearTimeout(timeout); signal?.removeEventListener('abort',abort); }
 }

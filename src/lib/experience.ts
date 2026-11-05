@@ -19,7 +19,7 @@ export const consultationGateway: ConsultationGateway = {
   physicians: async () => ({status:'unavailable',reason:'Verified physician listings and appointment booking are not connected yet.'}),
   appointments: async () => ({status:'unavailable',reason:'Appointment availability is not connected yet.'})
 };
-export const normalizeName = (value: string) => value.normalize('NFKC').toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+export const normalizeName = (value: string) => value.normalize('NFKC').toLocaleLowerCase().replace(/[^\p{L}\p{M}\p{N}]+/gu,' ').trim();
 export function relatedHerbRecords(herb: HerbMonograph, entries: AyurvedicEntry[]) {
   const species = normalizeName(herb.botanical).split(' ').slice(0,2).join(' ');
   const names = [herb.name, ...herb.common_names].map(normalizeName);

@@ -1,0 +1,37 @@
+
+.conversation-answer,.research-panel { padding:28px; border:1px solid var(--line); border-radius:14px; background:var(--paper); }
+.conversation-answer { border-top:3px solid var(--accent); }
+.answer-identity { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:10px; letter-spacing:.12em; }
+.conversation-answer h2,.research-panel h2 { font:400 30px/1.2 var(--font-serif); margin:16px 0; }
+.conversation-answer > p,.research-panel > p { font-size:14px; line-height:1.85; max-width:75ch; }
+.conversation-answer ol,.research-response ol { list-style:none; padding:0; margin:22px 0; }
+.conversation-answer li { padding:18px 0; border-top:1px solid var(--line); }
+.conversation-answer li strong { font-size:16px; }
+.conversation-answer li p { font-size:14px; margin:8px 0; line-height:1.8; }
+.conversation-answer li button { display:flex; align-items:center; gap:10px; font-size:12px; text-decoration:underline; }
+.followup-chips { display:flex; flex-wrap:wrap; gap:8px; margin:20px 0; }
+.followup-chips button { display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:22px; padding:8px 14px; font-size:12px; }
+.followup-form label,.research-panel form label { display:block; font-size:12px; margin-bottom:8px; }
+.followup-form > div,.research-panel form > div { display:flex; gap:8px; }
+.followup-form input,.research-panel input { flex:1; width:100%; min-width:0; border:1px solid var(--line); border-radius:7px; background:var(--canvas); padding:14px; font-size:16px; color:var(--ink); }
+.research-panel { background:var(--surface); }
+.research-panel header { display:flex; gap:14px; align-items:center; }
+.research-panel header .eyebrow { font-size:9px; }
+.research-panel h2 { margin:8px 0; }
+.research-panel form { margin-top:20px; }
+.research-panel form small { display:block; font-size:11px; line-height:1.7; color:var(--muted); margin-top:12px; }
+.research-response { margin-top:24px; }
+.research-response li { padding:22px 0; border-top:1px solid var(--line); }
+.research-response h3 { font:400 22px/1.4 var(--font-serif); margin:8px 0; }
+.research-response h3 svg { display:inline; margin-left:8px; }
+.research-response a { text-decoration:underline; text-underline-offset:4px; }
+.research-meta { font-size:12px; color:var(--muted); line-height:1.8; }
+.research-response details { margin-top:12px; font-size:13px; }
+.research-response > a { display:inline-flex; align-items:center; gap:8px; min-height:44px; font-size:13px; }
+.conversation-history { max-width:960px; margin:0 auto 20px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.conversation-history > span { font-size:11px; color:var(--muted); }
+.conversation-history button { font-size:12px; border:1px solid var(--line); padding:8px 14px; border-radius:20px; max-width:100%; overflow-wrap:anywhere; }
+.conversation-history [aria-current=step] { background:var(--surface); border-color:var(--accent); }
+.conversation-topic { font-size:12px; color:var(--muted); }
+.answer-limitation { padding:16px; background:var(--warning); color:var(--warning-ink); }
+@media(max-width:767px) { .conversation-answer,.research-panel { padding:22px; } .conversation-answer h2,.research-panel h2 { font-size:26px; } .research-panel form > div { flex-direction:column; } .research-panel .primary-button { width:100%; } .followup-form input { padding:12px; } }
