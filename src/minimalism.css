@@ -1,0 +1,119 @@
+/* Intent first: one clear entry, useful secondary actions, quiet supporting detail. */
+.nav-inner { gap: 24px; }
+.desktop-nav button { padding: 10px 16px; }
+.location-strip { min-height: 44px; }
+.location-strip [aria-current=page] { box-shadow: none; }
+.codex-menu-trigger kbd { border-left: 1px solid var(--line); padding-left: 10px; }
+.search-hero { max-width: 900px; padding: 48px 24px 24px; }
+.search-hero h1 { font-size: clamp(32px, 4vw, 48px); letter-spacing: -1.3px; margin: 16px 0; }
+.search-hero .hero-description { font-size: 15px; }
+.search-composer { border-radius: 14px; padding: 16px 20px; box-shadow: 0 8px 28px #10291b08; }
+.composer-input { align-items: center; }
+.composer-input > svg { margin-top: 0; }
+.composer-input textarea { min-height: 44px; padding-block: 9px; resize: none; }
+.search-clear { display: grid; place-items: center; min-width: 44px; border-radius: 50%; }
+.search-clear:hover { background: var(--surface); }
+.composer-input .search-clear svg { margin: 0; width: 18px; }
+.search-profile { margin: 0; }
+.search-profile summary { color: var(--muted); padding-block: 10px; }
+.composer-toolbar { margin-top: 0; }
+.search-hero-compact { padding-top: 16px; padding-bottom: 0; }
+.search-hero-compact h1 { font: 500 14px/1.5 var(--font-sans); text-align: left; max-width: 720px; margin: 0 auto 10px; letter-spacing: 0; color: var(--muted); }
+.search-hero-compact .search-composer { box-shadow: none; }
+.search-hero .prompt-chips button { background: transparent; transition: background 160ms ease; }
+.browse-shortcuts { max-width: 720px; margin: 12px auto 64px; border-top: 1px solid var(--line); padding-top: 24px; }
+.browse-shortcuts h2 { font: 500 13px var(--font-sans); color: var(--muted); margin-bottom: 18px; }
+.browse-shortcuts > div { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+.browse-shortcuts > div > button { display: flex; align-items: center; gap: 12px; text-align: left; padding: 18px 12px; border-radius: 10px; transition: background 160ms ease; }
+.browse-shortcuts button:hover { background: var(--surface); }
+.browse-shortcuts button > span { flex: 1; }
+.browse-shortcuts strong { display: block; font-weight: 600; font-size: 14px; }
+.browse-shortcuts small { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; }
+.browse-shortcuts > div > button > svg:last-child { width: 14px; }
+.browse-saved { display: flex; align-items: center; gap: 10px; font-size: 12px; margin-top: 18px; padding: 10px 12px; }
+.results-layout { max-width: 960px; gap: 24px; }
+.discovery-results-heading .eyebrow { display: none; }
+.discovery-results-heading h2 { font-size: 32px; margin: 8px 0; }
+.discovery-results-heading > p { margin-bottom: 12px; }
+.results-layout .formulation-grid { grid-template-columns: 1fr; gap: 16px; }
+.discovery-result { border-radius: 12px; padding: 24px 28px; }
+.discovery-result h3 { font-size: 28px; }
+.discovery-result .card-topline { font-size: 10px; letter-spacing: 1px; }
+.context-actions { gap: 8px; margin-block: 18px; }
+.context-actions button { border-radius: 8px; padding-inline: 14px; transition: background 160ms ease, border-color 160ms ease; }
+.context-actions button:not(:first-child), .context-actions[data-primary=none] button { border-color: transparent; background: transparent; color: var(--ink); }
+.context-actions button:hover { box-shadow: none; background: var(--surface); border-color: var(--line); color: var(--ink); }
+.discovery-result .card-safety { font-size: 12px; margin-top: 14px; }
+.discovery-result details { margin-top: 12px; padding-top: 0; }
+.source-summary, .reading-panel { border-radius: 10px; }
+.experience-page { max-width: 900px; }
+.experience-page > header { margin-bottom: 20px; }
+.experience-page > header .eyebrow { font-size: 10px; }
+.experience-page h1 { font-size: clamp(32px,4vw,46px); }
+.experience-page header > p { display: inline-block; padding: 5px 12px; background: var(--surface); border-radius: 6px; font-size: 14px; }
+.consult-optional { border-top: 1px solid var(--line); margin-block: 20px; }
+.consult-optional > summary { font-size: 14px; min-height: 48px; }
+.consult-optional > summary span { font-size: 12px; font-weight: 400; color: var(--muted); margin-left: 8px; }
+.consult-optional > label { display: grid; gap: 10px; font-size: 14px; margin-top: 20px; }
+.consult-review:focus { outline: 2px solid var(--accent); outline-offset: 5px; }
+.consult-review .primary-button { margin-top: 16px; }
+.botanical-home .home-section { padding-top: 64px; padding-bottom: 64px; }
+.botanical-home .home-paths { padding-top: 32px; padding-bottom: 32px; gap: 20px; }
+.home-path-card { border-radius: 12px; }
+.home-paths .path-art { height: clamp(160px,18vw,240px); }
+.home-paths .path-copy { padding: 24px; }
+.home-paths .path-copy p { min-height: 0; font-size: 14px; }
+.home-paths .path-copy h2 { font-size: 29px; }
+.home-service-links { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 24px; padding: 32px 24px; border-bottom: 1px solid var(--line); }
+.home-service-links > span { font-size: 13px; color: var(--muted); }
+.home-service-links button { text-align: left; font-size: 13px; }
+.home-service-links button > span { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; }
+@media (max-width:767px) {
+  .mobile-nav { grid-template-columns: repeat(4,minmax(0,1fr)); }
+  .mobile-nav button { position: relative; font-size: 11px; }
+  .saved-nav-count { position: absolute; top: 0; right: 20%; font-size: 9px; }
+  .search-hero { padding: 28px 18px 16px; }
+  .search-hero h1 { font-size: 34px; line-height: 1.15; }
+  .search-hero-compact { padding-top: 12px; padding-bottom: 0; }
+  .search-hero-compact h1 { font-size: 13px; }
+  .search-composer { padding: 12px 14px; }
+  .composer-input { gap: 8px; }
+  .composer-input textarea { font-size: 16px; }
+  .search-clear { min-width: 32px; }
+  .browse-shortcuts { margin-top: 4px; padding-top: 18px; }
+  .browse-shortcuts > div { grid-template-columns: 1fr; gap: 0; }
+  .browse-shortcuts > div > button { padding: 14px 10px; }
+  .browse-shortcuts small { margin-top: 2px; font-size: 12px; }
+  .discovery-result { padding: 20px; }
+  .context-actions button:first-child { flex-basis: 100%; justify-content: center; }
+  .context-actions button:last-child { flex-basis: auto; }
+  .context-actions button:not(:first-child) { flex: 1; justify-content: center; font-size: 11px; padding-inline: 8px; }
+  .context-actions[data-primary=none] button { flex: 1; flex-basis: auto; }
+  .botanical-home .home-section { padding-block: 40px; }
+  .botanical-home .home-paths { gap: 12px; padding-block: 24px; }
+  .home-path-card { display: grid; grid-template-columns: 90px minmax(0,1fr); }
+  .home-paths .path-art { height: 100%; min-height: 160px; }
+  .home-paths .path-copy { padding: 18px; }
+  .home-paths .path-copy h2 { font-size: 25px; margin: 0 0 8px; }
+  .home-paths .path-copy p { font-size: 12px; margin-bottom: 8px; }
+  .home-paths .path-copy .home-eyebrow { display: none; }
+  .home-paths .home-link { font-size: 12px; }
+  .home-service-links { justify-content: flex-start; gap: 20px; }
+  .home-service-links > span { width: 100%; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .discovery-result, .consult-review { animation: discovery-enter 220ms ease-out both; }
+  @keyframes discovery-enter { from { opacity: .5; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+}
+
+/* On results, keep editing the query in one row and refinements in the next. */
+.search-hero-compact .search-composer { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 4px 12px; }
+.search-hero-compact .composer-input { grid-column: 1; grid-row: 1; min-width: 0; }
+.search-hero-compact .composer-input textarea { min-width: 0; }
+.search-hero-compact .composer-toolbar { display: contents; }
+.search-hero-compact .composer-toolbar .primary-button { grid-column: 2; grid-row: 1; }
+.search-hero-compact .filter-button { grid-column: 2; grid-row: 2; font-size: 11px; justify-self: end; }
+.search-hero-compact .search-profile { grid-column: 1; grid-row: 2; }
+.search-hero-compact .search-profile[open] { grid-column: 1 / -1; grid-row: 3; }
+.search-hero-compact .search-profile summary { font-size: 11px; }
+.consult-intro { font-size: 14px; color: var(--muted); margin-bottom: 18px; }

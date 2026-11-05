@@ -42,8 +42,15 @@ const server = http.createServer((req,res) => {
     await go('#home');
     await page.getByRole('button',{name:'Start discovering',exact:true}).click();
     await page.locator('#ask-input').waitFor();
+    await page.reload();
+    await page.locator('.browse-shortcuts').waitFor();
+    assert.equal(await page.locator('.browse-shortcuts > div > button').count(),3);
+    await page.locator('#ask-input').fill('Draft');
+    await page.getByRole('button',{name:'Clear search',exact:true}).click();
+    assert.equal(await page.locator('#ask-input').inputValue(),'');
+    assert(await page.locator('#ask-input').evaluate(el => el === document.activeElement));
     await go('#home');
-    await page.getByRole('button',{name:'Check availability',exact:true}).click();
+    await page.getByRole('button',{name:'Check availability Shop coming soon',exact:true}).click();
     await page.getByRole('heading',{name:'Purchasing is coming soon.',exact:true}).waitFor();
     await go('#home');
     await page.locator('.home-herb button').first().click();
@@ -136,6 +143,11 @@ const server = http.createServer((req,res) => {
     await page.getByRole('button',{name:'Review context',exact:true}).click();
     assert((await page.getByRole('region',{name:'Consultation context review'}).textContent()).includes('Local private note'));
     assert((await page.locator('.consult-unavailable').textContent()).includes('not connected'));
+    assert(await page.locator('.consult-review').evaluate(el => el === document.activeElement));
+    assert.equal(await page.locator('.consult-context').count(),0);
+    await page.getByRole('button',{name:'Edit context',exact:true}).click();
+    assert.equal(await page.getByLabel('Your concern',{exact:true}).inputValue(),'Sleep question for professional review');
+    assert.equal(await page.getByLabel('Health context',{exact:true}).inputValue(),'Local private note');
     await page.locator('.experience-back').click();
     assert.equal(await page.locator('#ask-input').inputValue(),'Unsubmitted question');
     await page.locator('#ask-input').fill('Sleep');
@@ -183,6 +195,9 @@ const server = http.createServer((req,res) => {
     await page.locator('#ask-input').fill('Sleep');
     await page.locator('.search-composer').getByRole('button',{name:'Discover',exact:true}).click();
     await page.locator('.formulation-card').first().waitFor();
+    assert.equal(await page.locator('.prompt-chips').count(),0);
+    assert.equal(await page.getByRole('navigation',{name:'Mobile primary'}).getByRole('button').count(),4);
+    await page.screenshot({path:path.join(require('os').tmpdir(),'mulika-results-minimal-mobile.png')});
     await page.locator('.formulation-card').first().getByRole('button',{name:'Consult a Physician',exact:true}).click();
     await page.getByRole('heading',{name:'Consult a Physician',exact:true}).waitFor();
     assert(!(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)));

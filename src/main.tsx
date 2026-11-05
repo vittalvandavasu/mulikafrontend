@@ -10,6 +10,7 @@ import './platform.css';
 import './result-journey.css';
 import './evidence-architecture.css';
 import './discovery.css';
+import './minimalism.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

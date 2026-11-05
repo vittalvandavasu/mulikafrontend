@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, ArrowRight, BookOpen, ShoppingBag, Stethoscope } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, ShoppingBag } from 'lucide-react';
 import { AyurvedicEntry, HerbMonograph } from '../types';
 import { Journey, JourneyContext, ServiceResult, Product, Physician, commerceGateway, consultationGateway, ingredientHerb } from '../lib/experience';
 import { SearchContext } from './SearchContext';
@@ -24,6 +24,10 @@ export function ExperiencePage({ journey, context, entries, herbs, back, source,
     void load.catch(() => {if(!controller.signal.aborted) setError('This service could not be loaded. Please try again.');});
     return () => controller.abort();
   },[journey,context,retry]);
+  const reviewRef = React.useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (review) reviewRef.current?.focus();
+  }, [review]);
   const records = entries.filter(entry => context.entity.recordIds.includes(entry.id));
   const title = journey === 'make' ? 'Make Yourself' : journey === 'buy' ? 'Buy herbs & ingredients' : 'Consult a Physician';
   return <section className="experience-page">
@@ -39,15 +43,15 @@ export function ExperiencePage({ journey, context, entries, herbs, back, source,
       {!products ? <p role="status">Checking product availability…</p> : products.status === 'unavailable' ? <div className="experience-empty"><ShoppingBag/><h2>Purchasing is coming soon.</h2><p>{products.reason}</p><p>No products, prices or stock availability can be confirmed yet.</p>{context.ingredient && <p>Ingredient carried from your preparation: <strong>{context.ingredient}</strong></p>}<div className="button-row"><button onClick={back}>Return to your selection</button><button onClick={() => move('make')}>Explore recorded preparations</button></div></div> : !products.items.length ? <p className="experience-notice">No matching products are currently available.</p> : <div className="product-grid">{products.items.map(product => <article key={product.id}>{product.imageUrl && <img src={product.imageUrl} alt={product.name}/>}<h2>{product.name}</h2><p>{product.packSize}</p><p>{new Intl.NumberFormat('en-IN',{style:'currency',currency:product.currency}).format(product.priceMinor/100)}</p><p>{product.available ? 'Available' : 'Unavailable'}</p>{product.available && <a className="primary-button" href={product.purchaseUrl}>View product & purchase</a>}</article>)}</div>}
     </>}
     {journey === 'consult' && <>
-      <p className="experience-notice">For personal advice or questions about suitability, a qualified Ayurvedic physician can review your concern and health context.</p>
+      <p className="consult-intro">Prepare your questions for a qualified Ayurvedic physician.</p>
       {!error && (!physicians ? <p role="status">Checking consultation availability…</p> : physicians.status === 'unavailable' ? <p className="consult-unavailable" role="status">{physicians.reason} No appointment will be booked or shared here.</p> : <p>{physicians.items.filter(item => item.verification === 'verified').length} verified physicians available. Booking integration is required to select an appointment.</p>)}
-      <form className="consult-context" onSubmit={event => {event.preventDefault();setReview(true);}}>
-        <h2>Review your consultation context</h2><label>Your concern<textarea aria-label="Your concern" value={concern} onChange={event => {setConcern(event.target.value);setReview(false);}} rows={3} maxLength={1000}/></label>
-        <SearchContext value={profile} onChange={value => {setProfile(value);setReview(false);}}/>
-        <label>Health context <span>optional</span><textarea aria-label="Health context" value={health} onChange={event => {setHealth(event.target.value);setReview(false);}} rows={3} maxLength={1500} placeholder="Conditions or current medicines you would want a physician to review"/></label>
-        <p className="muted">This stays in this page’s memory and clears when you leave. Nothing is sent to a physician or saved. A future booking flow must ask for consent before sharing.</p><button className="primary-button" type="submit">Review context <ArrowRight size={16}/></button>
-      </form>
-      {review && <section className="consult-review" aria-label="Consultation context review"><h2>Your context, ready to review</h2><p>{concern || 'No concern specified'}</p><p>{[profile.age,profile.gender].filter(Boolean).join(' · ') || 'Age and gender not specified'}</p><p>{health || 'No additional health context provided'}</p><p role="status">Local preview only. Booking and secure sharing are unavailable.</p></section>}
+      {!review && <form className="consult-context" onSubmit={event => {event.preventDefault();setReview(true);}}>
+        <h2>Prepare your questions</h2><p className="muted">A private note to help you plan a conversation.</p><label>Your concern<textarea aria-label="Your concern" value={concern} onChange={event => {setConcern(event.target.value);setReview(false);}} rows={3} maxLength={1000}/></label>
+        <details className="consult-optional" open={profile.enabled || undefined}><summary>Personal context <span>optional</span></summary><SearchContext value={profile} onChange={value => {setProfile(value);setReview(false);}}/>
+        <label>Health context <span>optional</span><textarea aria-label="Health context" value={health} onChange={event => {setHealth(event.target.value);setReview(false);}} rows={3} maxLength={1500} placeholder="Conditions or current medicines you would want a physician to review"/></label></details>
+        <p className="muted">Private to this page. Nothing is saved or sent; your note clears when you leave.</p><button className="primary-button" type="submit">Review context <ArrowRight size={16}/></button>
+      </form>}
+      {review && <section ref={reviewRef} tabIndex={-1} className="consult-review" aria-label="Consultation context review"><h2>Your context, ready to review</h2><p>{concern || 'No concern specified'}</p><p>{[profile.age,profile.gender].filter(Boolean).join(' · ') || 'Age and gender not specified'}</p><p>{health || 'No additional health context provided'}</p><p role="status">Local preview only. Booking and secure sharing are unavailable.</p><button className="primary-button" onClick={() => {setReview(false); requestAnimationFrame(() => document.querySelector<HTMLTextAreaElement>('[aria-label="Your concern"]')?.focus());}}>Edit context</button></section>}
     </>}
   </section>;
 }
