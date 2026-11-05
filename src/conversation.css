@@ -35,3 +35,4 @@
 .conversation-topic { font-size:12px; color:var(--muted); }
 .answer-limitation { padding:16px; background:var(--warning); color:var(--warning-ink); }
 @media(max-width:767px) { .conversation-answer,.research-panel { padding:22px; } .conversation-answer h2,.research-panel h2 { font-size:26px; } .research-panel form > div { flex-direction:column; } .research-panel .primary-button { width:100%; } .followup-form input { padding:12px; } }
+.search-hero-compact .composer-toolbar .primary-button { align-self:center; }
