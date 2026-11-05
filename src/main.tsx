@@ -11,6 +11,7 @@ import './result-journey.css';
 import './evidence-architecture.css';
 import './discovery.css';
 import './minimalism.css';
+import './editorial.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

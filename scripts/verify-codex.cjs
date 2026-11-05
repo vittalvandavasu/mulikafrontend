@@ -26,7 +26,7 @@ const server = http.createServer((req,res) => {
       await page.waitForFunction(el => getComputedStyle(el).opacity === '1', await element.elementHandle());
     }
     await page.evaluate(() => window.scrollTo(0,0));
-    await page.screenshot({path:path.resolve(__dirname,'../'+name),fullPage:true});
+    await page.screenshot({animations:'disabled',path:path.resolve(__dirname,'../'+name),fullPage:true});
   };
   try {
     await go('#herbs');
@@ -188,7 +188,7 @@ const server = http.createServer((req,res) => {
       for (const hash of ['search','herbs','sources','community','home']) {
         await go('#'+hash);
         if(!['home','search'].includes(hash)) await page.locator('.botanical-banner img').evaluate(image => image.decode());
-        await page.screenshot({path:path.join(require('os').tmpdir(),'mulika-'+hash+'-'+width+'.png')});
+        await page.screenshot({animations:'disabled',path:path.join(require('os').tmpdir(),'mulika-'+hash+'-'+width+'.png')});
       }
     }
     await go('#search');
@@ -197,11 +197,11 @@ const server = http.createServer((req,res) => {
     await page.locator('.formulation-card').first().waitFor();
     assert.equal(await page.locator('.prompt-chips').count(),0);
     assert.equal(await page.getByRole('navigation',{name:'Mobile primary'}).getByRole('button').count(),4);
-    await page.screenshot({path:path.join(require('os').tmpdir(),'mulika-results-minimal-mobile.png')});
+    await page.screenshot({animations:'disabled',path:path.join(require('os').tmpdir(),'mulika-results-minimal-mobile.png')});
     await page.locator('.formulation-card').first().getByRole('button',{name:'Consult a Physician',exact:true}).click();
     await page.getByRole('heading',{name:'Consult a Physician',exact:true}).waitFor();
     assert(!(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)));
-    await page.screenshot({path:path.join(require('os').tmpdir(),'mulika-consult-mobile.png')});
+    await page.screenshot({animations:'disabled',path:path.join(require('os').tmpdir(),'mulika-consult-mobile.png')});
     await page.locator('.experience-back').click();
     await page.getByRole('navigation',{name:'Mobile primary'}).getByRole('button',{name:'Saved',exact:true}).click();
     await page.locator('[data-scene="saved"] img').evaluate(image => image.decode());

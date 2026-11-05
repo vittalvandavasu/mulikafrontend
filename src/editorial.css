@@ -1,0 +1,132 @@
+/* Mulika: an editorial botanical identity. Existing imagery is illustrative. */
+.botanical-home { --home-cream:#f4f0e5; --home-ink:#193d30; --home-muted:#59685b; font-family:var(--font-sans); }
+.botanical-home h1,.botanical-home h2,.botanical-home h3 { font-family:var(--font-serif); }
+.botanical-home .botanical-hero { background:#f4f0e5; color:#193d30; min-height:760px; height:min(860px,90svh); max-height:none; align-items:center; }
+.botanical-hero::before { content:''; position:absolute; z-index:-3; right:0; top:0; width:43%; height:100%; background:#1e4435; }
+.botanical-home .hero-art { inset:7% 4% auto auto; width:43%; height:83%; border-radius:48% 48% 3px 3px; object-position:72% center; z-index:-2; }
+.botanical-home .hero-shade { inset:7% 4% auto auto; width:43%; height:83%; border-radius:48% 48% 3px 3px; background:linear-gradient(0deg,#0b23197a,transparent 45%); }
+.botanical-home .hero-copy { width:50%; margin-left:5vw; padding:38px 0 80px; }
+.botanical-home .hero-copy .home-eyebrow { font-size:10px; letter-spacing:.2em; display:flex; align-items:center; gap:12px; }
+.hero-copy .home-eyebrow::before { content:''; width:28px; height:1px; background:currentColor; }
+.botanical-home .hero-copy h1 { font-size:clamp(64px,7.1vw,108px); line-height:.96; letter-spacing:-.065em; margin:28px 0; }
+.botanical-home .hero-copy h1 em { color:#617440; }
+.botanical-home .hero-copy > p { color:#536452; font-size:14px; line-height:1.85; margin-bottom:26px; }
+.botanical-home .home-search { width:90%; box-shadow:0 10px 30px #193d3009; border:1px solid #b6c0a5; padding:8px 8px 8px 18px; border-radius:5px; }
+.botanical-home .home-search button { background:#dbe692; color:#1b3d2d; border-radius:3px; }
+.botanical-home .home-search button:hover { background:#c6d578; }
+.botanical-home .home-search input { font-size:14px; }
+.botanical-home .hero-suggestions { font-size:11px; color:#526448; }
+.botanical-home .hero-suggestions button { color:#354b33; background:transparent; border:0; border-bottom:1px solid #aeb79c; border-radius:0; min-height:36px; padding:4px 8px; }
+.botanical-home .hero-suggestions button:hover { background:#e7e9d6; }
+.botanical-home .hero-caption { left:5vw; bottom:28px; right:auto; font-size:8px; letter-spacing:.15em; flex-direction:column; gap:9px; }
+.hero-seal { position:absolute; top:12%; right:40%; display:grid; justify-items:center; gap:5px; background:#e4ea9b; color:#294a2b; width:120px; height:120px; padding:19px 12px; border-radius:50%; transform:rotate(-13deg); box-shadow:0 6px 24px #102c1920; }
+.hero-seal span { font-size:8px; font-weight:600; letter-spacing:.18em; }
+.hero-image-label { position:absolute; bottom:13%; right:7%; left:58%; display:flex; flex-direction:column; gap:10px; color:#fff9e8; }
+.hero-image-label span:first-child { font-size:8px; letter-spacing:.2em; }
+.hero-image-label span:last-child { font:italic 26px/1.2 var(--font-serif); }
+.editorial-intro { max-width:1440px; margin:auto; padding:64px 6vw 0; display:flex; align-items:center; justify-content:space-between; gap:24px; }
+.editorial-intro > span:first-child { font-size:9px; letter-spacing:.16em; max-width:150px; }
+.editorial-intro p { font:400 clamp(28px,3vw,44px)/1.2 var(--font-serif); letter-spacing:-.04em; }
+.editorial-intro p em { color:#77815d; }
+.editorial-intro-mark { font-size:60px; font-weight:300; }
+.botanical-home .home-paths { grid-template-columns:1.15fr 1fr 1fr; gap:22px; padding-top:36px; padding-bottom:72px; }
+.botanical-home .home-path-card { border-radius:3px; background:#e6e9d8; }
+.botanical-home .home-path-card.earth { background:#eee0cf; }
+.botanical-home .home-path-card.olive { background:#dfe2bb; }
+.home-path-card:nth-child(2) { margin-top:28px; }
+.home-path-card:nth-child(3) { margin-top:56px; }
+.botanical-home .home-paths .path-art { height:clamp(220px,23vw,340px); }
+.botanical-home .home-paths .crop-2 { background-image:url('/images/reading.webp'); }
+.botanical-home .home-paths .path-copy { padding:25px; }
+.botanical-home .home-paths .path-copy h2 { font-size:34px; }
+.botanical-home .home-paths .home-link { width:100%; }
+.botanical-home .home-paths .home-link svg { background:#193d30; color:#f7f1dc; padding:7px; width:34px; height:34px; border-radius:50%; }
+.botanical-home .home-section[aria-labelledby=needs-title] { max-width:none; padding-inline:max(6vw,calc((100vw - 1268px)/2)); background:#203f32; color:#f4f0e5; }
+.botanical-home .home-section[aria-labelledby=needs-title] .section-heading > p { color:#c4cfb8; }
+.botanical-home .needs-grid { gap:1px; background:#ffffff29; border:1px solid #ffffff29; }
+.botanical-home .need-card { background:#203f32; color:#eeeeda; border-radius:0; min-height:150px; padding:24px; }
+.botanical-home .need-card > svg:first-child { color:#d8e59b; }
+.botanical-home .need-card:hover { background:#314f3e; transform:none; }
+.botanical-home .featured-section { padding-block:76px; }
+.botanical-home .home-herbs { gap:18px; }
+.botanical-home .home-herb { border-radius:120px 120px 4px 4px; padding:36px 24px 24px; min-height:450px; background:#e4e6d5; }
+.botanical-home .herb-tone-1 { background:#dce7d6; }
+.botanical-home .herb-tone-2 { background:#ede2ce; }
+.botanical-home .herb-tone-3 { background:#e5e7bf; }
+.herb-illustration { height:140px; display:flex; align-items:center; justify-content:center; gap:8px; }
+.herb-illustration svg { width:108px; height:108px; color:#71835c; transform:rotate(-25deg); }
+.herb-illustration span { font-size:7px; letter-spacing:.12em; color:#657255; writing-mode:vertical-rl; }
+.herb-tone-1 .herb-illustration svg { transform:rotate(20deg); }
+.herb-tone-2 .herb-illustration svg { transform:rotate(-55deg); }
+.botanical-home .herb-number { position:absolute; top:155px; right:20px; font-size:42px; color:#36573530; margin:0; }
+.botanical-home .herb-family { margin-top:20px; max-width:80%; }
+.botanical-home .home-herb h3 { font-size:29px; }
+.botanical-home .home-herb .home-link { width:100%; }
+.botanical-home .preparation-story { margin:0 4vw; background:#e6e8d1; border-radius:3px; overflow:hidden; }
+.botanical-home .story-image { min-height:570px; }
+.botanical-home .story-copy { padding:50px 4vw; }
+.botanical-home .story-copy h2 { font-size:clamp(38px,4.2vw,64px); }
+.botanical-home .home-closing { position:relative; background:#193d30; padding-top:64px; padding-bottom:64px; overflow:hidden; }
+.botanical-home .home-closing > span { font-size:clamp(64px,12vw,180px); letter-spacing:-.065em; line-height:1; color:#e1e7aa; }
+.botanical-home .home-closing p { font-size:22px; }
+[data-theme=dark] .botanical-home { --home-cream:#182b21; --home-ink:#f0ecd9; --home-muted:#bcc8af; }
+[data-theme=dark] .editorial-intro p em { color:#c3ce9a; }
+@media(min-width:768px) and (max-width:1050px) {
+  .botanical-home .hero-copy h1 { font-size:7.5vw; }
+  .botanical-home .hero-copy { margin-left:4vw; width:49%; }
+  .botanical-home .home-search { width:98%; }
+  .hero-seal { width:90px; height:90px; padding:12px; right:39%; }
+  .hero-seal svg { width:27px; height:27px; }
+  .hero-seal span { font-size:6px; }
+  .botanical-home .home-paths .path-copy { padding:20px; }
+  .botanical-home .home-paths .path-copy h2 { font-size:28px; }
+}
+@media(max-width:767px) {
+  .botanical-home .botanical-hero { display:block; height:auto; min-height:0; max-height:none; padding-bottom:350px; }
+  .botanical-hero::before { top:auto; bottom:0; width:100%; height:310px; }
+  .botanical-home .hero-copy { width:auto; margin:0; padding:30px 24px 32px; }
+  .botanical-home .hero-copy .home-eyebrow { font-size:8px; letter-spacing:.14em; }
+  .botanical-home .hero-copy h1 { font-size:clamp(55px,14.5vw,88px); line-height:.98; margin:24px 0; }
+  .botanical-home .hero-copy > p { font-size:13px; margin-bottom:22px; max-width:340px; }
+  .botanical-home .home-search { width:100%; padding-left:12px; }
+  .botanical-home .home-search input { font-size:16px; }
+  .botanical-home .hero-suggestions { gap:8px; margin-top:12px; }
+  .botanical-home .hero-art,.botanical-home .hero-shade { inset:auto 24px 30px; width:calc(100% - 48px); height:320px; border-radius:150px 150px 3px 3px; object-position:center 65%; }
+  .botanical-home .hero-seal { top:auto; bottom:260px; right:20px; height:90px; width:90px; padding:12px; }
+  .hero-seal svg { width:28px; height:28px; }
+  .hero-seal span { font-size:6px; }
+  .hero-image-label { bottom:54px; right:44px; left:44px; }
+  .hero-image-label span:last-child { font-size:24px; }
+  .botanical-home .hero-caption { display:none; }
+  .editorial-intro { padding:36px 24px 0; flex-wrap:wrap; gap:16px; }
+  .editorial-intro > span:first-child { max-width:none; width:100%; font-size:8px; }
+  .editorial-intro p { font-size:30px; }
+  .editorial-intro-mark { font-size:40px; }
+  .botanical-home .home-paths { grid-template-columns:1fr; padding-top:24px; padding-bottom:36px; gap:14px; }
+  .botanical-home .home-path-card { margin-top:0; grid-template-columns:100px minmax(0,1fr); }
+  .botanical-home .home-paths .path-art { height:100%; min-height:190px; }
+  .botanical-home .home-paths .path-copy { padding:18px; }
+  .botanical-home .home-paths .path-copy h2 { font-size:26px; }
+  .botanical-home .home-paths .home-link svg { width:28px; height:28px; padding:6px; }
+  .botanical-home .need-card { min-height:136px; padding:20px; }
+  .botanical-home .home-herbs { gap:12px; }
+  .botanical-home .home-herb { padding:24px 16px 20px; border-radius:80px 80px 3px 3px; min-height:420px; }
+  .herb-illustration { height:110px; }
+  .herb-illustration svg { width:85px; height:85px; }
+  .herb-illustration span { display:none; }
+  .botanical-home .herb-number { top:125px; right:12px; font-size:35px; }
+  .botanical-home .home-herb h3 { font-size:27px; }
+  .botanical-home .home-herb .herb-family { font-size:8px; }
+  .botanical-home .preparation-story { margin:0 18px; }
+  .botanical-home .story-image { min-height:320px; height:320px; }
+  .botanical-home .story-copy { padding:32px 24px; }
+  .botanical-home .home-closing > span { font-size:24vw; }
+}
+@media(prefers-reduced-motion:no-preference) {
+  .hero-copy h1 { animation:editorial-arrive 700ms cubic-bezier(.2,.8,.2,1) both; }
+  .hero-seal { animation:seal-arrive 900ms cubic-bezier(.2,.8,.2,1) both; }
+  .home-herb .herb-illustration svg { transition:transform 450ms ease; }
+  .home-herb:hover .herb-illustration svg { transform:rotate(0) translateY(-5px); }
+  @keyframes editorial-arrive { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes seal-arrive { from { opacity:0; transform:rotate(-35deg) scale(.85); } to { opacity:1; transform:rotate(-13deg) scale(1); } }
+}

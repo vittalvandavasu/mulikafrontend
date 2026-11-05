@@ -30,11 +30,11 @@ export function PreparationHero({ onSearch, videoSrc }: { onSearch: (query: stri
   return <section className="botanical-hero" aria-labelledby="home-title">
     <img className="hero-art" src={artwork} alt="" fetchPriority="high"/>
     {videoSrc && <video ref={video} className="hero-art" src={videoSrc} poster={artwork} muted loop playsInline aria-hidden="true"/>}
-    <div className="hero-shade"/>
+    <div className="hero-shade"/><div className="hero-seal" aria-hidden="true"><span>ROOTED IN</span><Leaf size={38} strokeWidth={1}/><span>TRADITION</span></div><div className="hero-image-label" aria-hidden="true"><span>01 / THE ART OF PREPARATION</span><span>Plant. Practice. Perspective.</span></div>
     <div className="hero-copy">
-      <span className="home-eyebrow">MULIKA · ROOTED IN KNOWLEDGE</span>
-      <h1 id="home-title">Old wisdom.<br/><em>New discoveries.</em></h1>
-      <p>Get to know your herbs. Explore traditional preparations.<br className="desktop-only"/> Find the stories behind them.</p>
+      <span className="home-eyebrow">THE LIVING BOTANICAL LIBRARY</span>
+      <h1 id="home-title">Old wisdom.<br/>A fresh<br/><em>perspective.</em></h1>
+      <p>Discover the plants, preparations and Telugu traditions<br className="desktop-only"/> that bring herbal knowledge to life.</p>
       <form className="home-search" role="search" onSubmit={event => { event.preventDefault(); if(query.trim()) onSearch(query.trim()); }}>
         <label className="sr-only" htmlFor="home-search-input">Search herbs, ailments and remedies</label>
         <Search size={22} aria-hidden="true"/>
@@ -43,7 +43,7 @@ export function PreparationHero({ onSearch, videoSrc }: { onSearch: (query: stri
       </form>
       <div className="hero-suggestions"><span>Try</span>{['Digestion','Sleep','Skin','Tulsi'].map(value => <button key={value} onClick={() => onSearch(value)}>{value}</button>)}</div>
     </div>
-    <div className="hero-caption"><span>FROM PLANT TO PRACTICE</span><span>Discover at your own pace ↓</span></div>
+    <div className="hero-caption"><span>HERBS · PREPARATIONS · ORIGINAL TEXTS</span><span>SCROLL TO EXPLORE ↓</span></div>
     {videoSrc && !reduced && <button className="hero-play" onClick={() => setPlaying(value => !value)} aria-label={playing ? 'Pause background film' : 'Play background film'}>{playing ? <Pause/> : <Play/>}</button>}
   </section>;
 }
@@ -61,7 +61,7 @@ export function BotanicalHome({ navigate, onSearch, herbs, onHerb, onCustomize }
     .map(name => herbs.find(herb => herb.botanical.includes(name))).filter((herb): herb is HerbMonograph => !!herb);
   return <div className="botanical-home">
     <PreparationHero onSearch={onSearch}/>
-    <section className="home-section home-paths" aria-label="Choose your path">
+    <div className="editorial-intro"><span>YOUR CURIOSITY. YOUR WAY IN.</span><p>A world of knowledge.<br/><em>Start somewhere familiar.</em></p><span className="editorial-intro-mark" aria-hidden="true">↙</span></div><section className="home-section home-paths" aria-label="Choose your path">
       {[
         { title:'Discover', text:'Find herbs, traditional preparations, and their source stories.', action:'Start discovering', run:() => navigate('search'), tone:'sage' },
         { title:'Know the herb', text:'English names, Telugu names, and the plants behind them.', action:'Browse herbs', run:() => navigate('herbs'), tone:'earth' },
@@ -74,7 +74,7 @@ export function BotanicalHome({ navigate, onSearch, herbs, onHerb, onCustomize }
     </section>
     <section className="home-section featured-section" aria-labelledby="herbs-title">
       <div className="section-heading"><div><span className="home-eyebrow">FAMILIAR PLANTS. MORE TO DISCOVER.</span><h2 id="herbs-title">Meet the herbs.</h2></div><button className="home-link" onClick={() => navigate('herbs')}>Explore all herbs <ArrowUpRight size={20}/></button></div>
-      <div className="home-herbs">{featured.map((herb,index) => <Reveal className={'home-herb herb-tone-'+index} key={herb.id}><span className="herb-number">0{index+1}</span><span className="herb-family">{herb.family}</span><h3>{englishHerbName(herb)}</h3><p lang="te">{herb.telugu}</p><p className="herb-sanskrit">{herb.sanskrit}</p><p className="herb-botanical">{herb.botanical}</p><button className="home-link" onClick={() => onHerb(herb.id)}>View herb <ArrowUpRight size={19}/></button></Reveal>)}</div>
+      <div className="home-herbs">{featured.map((herb,index) => <Reveal className={'home-herb herb-tone-'+index} key={herb.id}><div className="herb-illustration" aria-hidden="true"><Leaf strokeWidth={0.65}/><span>BOTANICAL<br/>FIELD NOTES</span></div><span className="herb-number">0{index+1}</span><span className="herb-family">{herb.family}</span><h3>{englishHerbName(herb)}</h3><p lang="te">{herb.telugu}</p><p className="herb-sanskrit">{herb.sanskrit}</p><p className="herb-botanical">{herb.botanical}</p><button className="home-link" onClick={() => onHerb(herb.id)}>View herb <ArrowUpRight size={19}/></button></Reveal>)}</div>
     </section>
     <section className="preparation-story" aria-labelledby="story-title"><div className="story-image"><img src={artwork} alt="Illustrative botanical preparation scene with hands using a stone mortar" loading="lazy"/><span>THE ART OF PREPARATION</span></div><Reveal className="story-copy"><span className="home-eyebrow">THERE’S A STORY IN EVERY PREPARATION</span><h2 id="story-title">More than a leaf.<br/><em>A living tradition.</em></h2><p>The grinding, the steeping, the patient attention. Traditional herbal knowledge carries generations of observation in every preparation.</p><p>Mulika brings you closer to those records—with ingredients, recorded methods, and the pages they came from.</p><button className="home-link" onClick={() => navigate('sources')}>Discover the library <ArrowUpRight size={20}/></button><small>Explore historical knowledge, not a personal treatment plan.</small></Reveal></section>
     <div className="home-service-links" aria-label="Additional services"><span>Planning your next step?</span><button onClick={() => navigate('buy')}>Check availability <span>Shop coming soon</span></button><button onClick={() => navigate('consult')}>Consult a Physician <span>Booking coming soon</span></button></div>
